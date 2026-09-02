@@ -8,20 +8,38 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    let isMounted = true;
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    // Get initial session safely
+    if (supabase && supabase.auth) {
+      supabase.auth.getSession()
+        .then(({ data }) => {
+          if (isMounted) {
+            setUser(data?.session?.user ?? null);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.warn('Supabase session fetch non-fatal warning:', err);
+          if (isMounted) setLoading(false);
+        });
 
-    return () => subscription.unsubscribe();
+      // Listen for auth changes
+      const { data } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          if (isMounted) {
+            setUser(session?.user ?? null);
+          }
+        }
+      );
+
+      return () => {
+        isMounted = false;
+        data?.subscription?.unsubscribe();
+      };
+    } else {
+      if (isMounted) setLoading(false);
+    }
   }, []);
 
   const signIn = async (email, password) => {
