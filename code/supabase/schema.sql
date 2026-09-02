@@ -1,64 +1,77 @@
 -- ============================================
--- VORIKX Supabase Schema
+-- VORIKX Live Supabase Database Schema
 -- ============================================
 
--- Project requests from "Start a Project" form
-CREATE TABLE IF NOT EXISTS project_requests (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  full_name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  company TEXT,
-  phone TEXT,
-  services TEXT[] NOT NULL DEFAULT '{}',
-  description TEXT NOT NULL,
-  goals TEXT,
-  budget_range TEXT,
-  timeline TEXT,
-  additional_info TEXT,
-  file_urls TEXT[] DEFAULT '{}',
-  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'in_review', 'in_progress', 'completed', 'archived'))
-);
-
--- Contact form submissions
-CREATE TABLE IF NOT EXISTS contact_messages (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  created_at TIMESTAMPTZ DEFAULT now(),
+-- 1. Clients Table
+CREATE TABLE IF NOT EXISTS public.clients (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
+  created_at TIMESTAMP WITH TIME ZONE NULL DEFAULT now(),
   name TEXT NOT NULL,
   email TEXT NOT NULL,
-  subject TEXT,
-  message TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT false
+  company_name TEXT NULL,
+  phone TEXT NULL,
+  notes TEXT NULL,
+  CONSTRAINT clients_pkey PRIMARY KEY (id)
 );
 
--- Enable Row Level Security
-ALTER TABLE project_requests ENABLE ROW LEVEL SECURITY;
-ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+-- 2. Contact Messages Table
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
+  created_at TIMESTAMP WITH TIME ZONE NULL DEFAULT now(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  message TEXT NOT NULL,
+  status TEXT NULL DEFAULT 'unread'::text,
+  CONSTRAINT contact_messages_status_check CHECK (
+    status = ANY (ARRAY['unread'::text, 'read'::text, 'replied'::text])
+  )
+);
 
--- Policy: Allow public inserts (for form submissions)
-CREATE POLICY "Allow public insert on project_requests"
-  ON project_requests FOR INSERT
-  TO anon
-  WITH CHECK (true);
+-- 3. Portfolio Projects Table
+CREATE TABLE IF NOT EXISTS public.portfolio_projects (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
+  created_at TIMESTAMP WITH TIME ZONE NULL DEFAULT now(),
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  category TEXT NOT NULL,
+  summary TEXT NULL,
+  case_study_content TEXT NULL,
+  cover_image_url TEXT NULL,
+  gallery_urls TEXT[] NULL,
+  is_featured BOOLEAN NULL DEFAULT false,
+  display_order INTEGER NULL DEFAULT 0,
+  CONSTRAINT portfolio_projects_slug_key UNIQUE (slug)
+);
 
-CREATE POLICY "Allow public insert on contact_messages"
-  ON contact_messages FOR INSERT
-  TO anon
-  WITH CHECK (true);
+-- 4. Project Requests Table
+CREATE TABLE IF NOT EXISTS public.project_requests (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
+  created_at TIMESTAMP WITH TIME ZONE NULL DEFAULT now(),
+  client_name TEXT NOT NULL,
+  client_email TEXT NOT NULL,
+  client_phone TEXT NULL,
+  company_name TEXT NULL,
+  service_type TEXT NOT NULL,
+  project_details TEXT NOT NULL,
+  budget_range TEXT NULL,
+  timeline TEXT NULL,
+  additional_info TEXT NULL,
+  status TEXT NULL DEFAULT 'new'::text,
+  CONSTRAINT project_requests_status_check CHECK (
+    status = ANY (ARRAY[
+      'new'::text, 'reviewing'::text, 'proposal_sent'::text,
+      'in_progress'::text, 'completed'::text, 'declined'::text
+    ])
+  )
+);
 
--- Policy: Allow authenticated users full access (admin)
-CREATE POLICY "Allow authenticated full access on project_requests"
-  ON project_requests FOR ALL
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
+-- Enable RLS
+ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.portfolio_projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_requests ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow authenticated full access on contact_messages"
-  ON contact_messages FOR ALL
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
-
--- Storage bucket for file uploads
--- Run this via Supabase dashboard or API:
--- INSERT INTO storage.buckets (id, name, public) VALUES ('project-files', 'project-files', true);
+-- Allow public inserts
+CREATE POLICY "Allow public insert on project_requests" ON public.project_requests FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "Allow public insert on contact_messages" ON public.contact_messages FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "Allow public read on portfolio_projects" ON public.portfolio_projects FOR SELECT TO anon USING (true);

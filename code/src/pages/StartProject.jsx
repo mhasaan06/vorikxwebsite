@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, Check, Upload } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { services as availableServices } from '../data/services';
 
@@ -37,42 +37,41 @@ export default function StartProject() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // State keys map 1-to-1 with PostgreSQL column names
+  // Exact 1:1 state mapping to project_requests schema
   const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    company: '',
-    phone: '',
-    services: [], // TEXT[] Array of selected service slugs
-    description: '',
-    goals: '',
+    client_name: '',
+    client_email: '',
+    client_phone: '',
+    company_name: '',
+    selectedServices: [], // Joined into comma-separated service_type string upon submit
+    project_details: '',
     budget_range: '',
     timeline: '',
     additional_info: '',
-    files: [],
   });
 
   const updateField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleService = (slug) => {
+  const toggleService = (title) => {
     setFormData((prev) => ({
       ...prev,
-      services: prev.services.includes(slug)
-        ? prev.services.filter((s) => s !== slug)
-        : [...prev.services, slug],
+      selectedServices: prev.selectedServices.includes(title)
+        ? prev.selectedServices.filter((s) => s !== title)
+        : [...prev.selectedServices, title],
     }));
   };
 
+  // Validation according to NOT NULL schema rules
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        return formData.full_name.trim() !== '' && formData.email.trim() !== '';
+        return formData.client_name.trim() !== '' && formData.client_email.trim() !== '';
       case 1:
-        return Array.isArray(formData.services) && formData.services.length > 0;
+        return formData.selectedServices.length > 0;
       case 2:
-        return formData.description.trim() !== '';
+        return formData.project_details.trim() !== '';
       case 3:
         return Boolean(formData.budget_range && formData.timeline);
       default:
@@ -85,43 +84,23 @@ export default function StartProject() {
     setError('');
 
     try {
-      // 1. Upload files to Supabase Storage if present
-      let fileUrls = [];
-      if (formData.files && formData.files.length > 0) {
-        for (const file of formData.files) {
-          const fileName = `${Date.now()}-${file.name}`;
-          const { data, error: uploadError } = await supabase.storage
-            .from('project-files')
-            .upload(fileName, file);
-          if (uploadError) {
-            console.warn('File upload skipped or storage bucket not initialized:', uploadError.message);
-          } else if (data) {
-            const { data: urlData } = supabase.storage
-              .from('project-files')
-              .getPublicUrl(data.path);
-            if (urlData?.publicUrl) {
-              fileUrls.push(urlData.publicUrl);
-            }
-          }
-        }
-      }
+      // service_type is a single TEXT string (joining selected services cleanly)
+      const serviceType = formData.selectedServices.join(', ');
 
-      // 2. Construct payload matching exact PostgreSQL schema types & NOT NULL constraints
       const payload = {
-        full_name: formData.full_name.trim(),
-        email: formData.email.trim(),
-        company: formData.company.trim() || null,
-        phone: formData.phone.trim() || null,
-        services: Array.isArray(formData.services) ? formData.services : [], // TEXT[] NOT NULL
-        description: formData.description.trim(), // TEXT NOT NULL
-        goals: formData.goals.trim() || null,
+        client_name: formData.client_name.trim(),
+        client_email: formData.client_email.trim(),
+        client_phone: formData.client_phone.trim() || null,
+        company_name: formData.company_name.trim() || null,
+        service_type: serviceType,
+        project_details: formData.project_details.trim(),
         budget_range: formData.budget_range || null,
         timeline: formData.timeline || null,
         additional_info: formData.additional_info.trim() || null,
-        file_urls: fileUrls, // TEXT[] DEFAULT '{}'
+        status: 'new',
       };
 
-      console.log('[VORIKX] Complete payload for project_requests insert:', JSON.stringify(payload, null, 2));
+      console.log('[VORIKX] Inserting payload to project_requests:', payload);
 
       const { error: insertError } = await supabase
         .from('project_requests')
@@ -131,7 +110,7 @@ export default function StartProject() {
 
       setSubmitted(true);
     } catch (err) {
-      console.error('[VORIKX] Submission failure:', err);
+      console.error('[VORIKX] Project request submission error:', err);
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
@@ -148,7 +127,7 @@ export default function StartProject() {
             </div>
             <h2 className="section-title">Project request submitted!</h2>
             <p className="section-subtitle" style={{ margin: 'var(--space-4) auto 0', maxWidth: '480px' }}>
-              Thank you, {formData.full_name}. We have received your project details
+              Thank you, {formData.client_name}. We have received your project details
               and will be in touch within 1–2 business days.
             </p>
             <div style={{ marginTop: 'var(--space-8)', display: 'flex', gap: 'var(--space-4)', justifyContent: 'center' }}>
@@ -212,8 +191,8 @@ export default function StartProject() {
                   className="form-input"
                   type="text"
                   placeholder="John Doe"
-                  value={formData.full_name}
-                  onChange={(e) => updateField('full_name', e.target.value)}
+                  value={formData.client_name}
+                  onChange={(e) => updateField('client_name', e.target.value)}
                 />
               </div>
               <div className="form-group">
@@ -222,8 +201,8 @@ export default function StartProject() {
                   className="form-input"
                   type="email"
                   placeholder="john@company.com"
-                  value={formData.email}
-                  onChange={(e) => updateField('email', e.target.value)}
+                  value={formData.client_email}
+                  onChange={(e) => updateField('client_email', e.target.value)}
                 />
               </div>
               <div className="form-group">
@@ -232,8 +211,8 @@ export default function StartProject() {
                   className="form-input"
                   type="text"
                   placeholder="Company name"
-                  value={formData.company}
-                  onChange={(e) => updateField('company', e.target.value)}
+                  value={formData.company_name}
+                  onChange={(e) => updateField('company_name', e.target.value)}
                 />
               </div>
               <div className="form-group">
@@ -242,15 +221,15 @@ export default function StartProject() {
                   className="form-input"
                   type="tel"
                   placeholder="+1 (555) 000-0000"
-                  value={formData.phone}
-                  onChange={(e) => updateField('phone', e.target.value)}
+                  value={formData.client_phone}
+                  onChange={(e) => updateField('client_phone', e.target.value)}
                 />
               </div>
             </div>
           </div>
         )}
 
-        {/* Step 1: Services (Multi-Select Array) */}
+        {/* Step 1: Services */}
         {currentStep === 1 && (
           <div>
             <h3 style={{ marginBottom: 'var(--space-2)' }}>What do you need?</h3>
@@ -265,22 +244,22 @@ export default function StartProject() {
                   style={{
                     padding: 'var(--space-4)',
                     border: `1px solid ${
-                      formData.services.includes(service.slug)
+                      formData.selectedServices.includes(service.title)
                         ? 'var(--accent)'
                         : 'var(--border-color)'
                     }`,
                     borderRadius: 'var(--radius-md)',
                     cursor: 'pointer',
                     transition: 'border-color var(--transition-fast)',
-                    backgroundColor: formData.services.includes(service.slug)
+                    backgroundColor: formData.selectedServices.includes(service.title)
                       ? 'var(--color-deep-teal-muted)'
                       : 'transparent',
                   }}
                 >
                   <input
                     type="checkbox"
-                    checked={formData.services.includes(service.slug)}
-                    onChange={() => toggleService(service.slug)}
+                    checked={formData.selectedServices.includes(service.title)}
+                    onChange={() => toggleService(service.title)}
                   />
                   <div>
                     <div style={{ fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' }}>
@@ -301,19 +280,10 @@ export default function StartProject() {
               <label className="form-label">Project Description *</label>
               <textarea
                 className="form-textarea"
-                placeholder="Describe your project, its purpose, and what you're looking to build..."
-                value={formData.description}
-                onChange={(e) => updateField('description', e.target.value)}
-                style={{ minHeight: '160px' }}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Goals & Success Metrics</label>
-              <textarea
-                className="form-textarea"
-                placeholder="What does success look like for this project?"
-                value={formData.goals}
-                onChange={(e) => updateField('goals', e.target.value)}
+                placeholder="Describe your project, its purpose, requirements, and what you're looking to build..."
+                value={formData.project_details}
+                onChange={(e) => updateField('project_details', e.target.value)}
+                style={{ minHeight: '180px' }}
               />
             </div>
           </div>
@@ -403,41 +373,8 @@ export default function StartProject() {
                 placeholder="Links to references, existing systems, design files, or any other relevant details..."
                 value={formData.additional_info}
                 onChange={(e) => updateField('additional_info', e.target.value)}
+                style={{ minHeight: '140px' }}
               />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Attachments</label>
-              <div
-                style={{
-                  border: '1px dashed var(--border-color-strong)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: 'var(--space-8)',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                }}
-                onClick={() => document.getElementById('file-upload').click()}
-              >
-                <Upload size={24} style={{ color: 'var(--text-secondary)', margin: '0 auto var(--space-3)' }} />
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
-                  Click to upload files (PDF, images, documents)
-                </p>
-                <input
-                  id="file-upload"
-                  type="file"
-                  multiple
-                  style={{ display: 'none' }}
-                  onChange={(e) => updateField('files', Array.from(e.target.files))}
-                />
-              </div>
-              {formData.files.length > 0 && (
-                <div style={{ marginTop: 'var(--space-3)' }}>
-                  {formData.files.map((f, i) => (
-                    <div key={i} style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', padding: 'var(--space-1) 0' }}>
-                      {f.name}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -449,47 +386,32 @@ export default function StartProject() {
 
             <div className="request-detail__field">
               <div className="request-detail__field-label">Name</div>
-              <div className="request-detail__field-value">{formData.full_name}</div>
+              <div className="request-detail__field-value">{formData.client_name}</div>
             </div>
             <div className="request-detail__field">
               <div className="request-detail__field-label">Email</div>
-              <div className="request-detail__field-value">{formData.email}</div>
+              <div className="request-detail__field-value">{formData.client_email}</div>
             </div>
-            {formData.company && (
+            {formData.company_name && (
               <div className="request-detail__field">
                 <div className="request-detail__field-label">Company</div>
-                <div className="request-detail__field-value">{formData.company}</div>
+                <div className="request-detail__field-value">{formData.company_name}</div>
               </div>
             )}
-            {formData.phone && (
+            {formData.client_phone && (
               <div className="request-detail__field">
                 <div className="request-detail__field-label">Phone</div>
-                <div className="request-detail__field-value">{formData.phone}</div>
+                <div className="request-detail__field-value">{formData.client_phone}</div>
               </div>
             )}
             <div className="request-detail__field">
-              <div className="request-detail__field-label">Services</div>
-              <div className="request-detail__services">
-                {formData.services.map((slug) => {
-                  const s = availableServices.find((sv) => sv.slug === slug);
-                  return (
-                    <span key={slug} className="process-step__tag">
-                      {s?.title || slug}
-                    </span>
-                  );
-                })}
-              </div>
+              <div className="request-detail__field-label">Service Type</div>
+              <div className="request-detail__field-value">{formData.selectedServices.join(', ')}</div>
             </div>
             <div className="request-detail__field">
-              <div className="request-detail__field-label">Project Description</div>
-              <div className="request-detail__field-value">{formData.description}</div>
+              <div className="request-detail__field-label">Project Details</div>
+              <div className="request-detail__field-value">{formData.project_details}</div>
             </div>
-            {formData.goals && (
-              <div className="request-detail__field">
-                <div className="request-detail__field-label">Goals</div>
-                <div className="request-detail__field-value">{formData.goals}</div>
-              </div>
-            )}
             <div className="request-detail__field">
               <div className="request-detail__field-label">Budget</div>
               <div className="request-detail__field-value">{formData.budget_range}</div>
@@ -502,16 +424,6 @@ export default function StartProject() {
               <div className="request-detail__field">
                 <div className="request-detail__field-label">Additional Information</div>
                 <div className="request-detail__field-value">{formData.additional_info}</div>
-              </div>
-            )}
-            {formData.files.length > 0 && (
-              <div className="request-detail__field">
-                <div className="request-detail__field-label">Attachments</div>
-                <div className="request-detail__field-value">
-                  {formData.files.map((f, i) => (
-                    <div key={i}>{f.name}</div>
-                  ))}
-                </div>
               </div>
             )}
           </div>

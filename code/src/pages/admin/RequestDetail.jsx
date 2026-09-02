@@ -5,18 +5,20 @@ import { supabase } from '../../lib/supabase';
 
 const statusOptions = [
   { value: 'new', label: 'New' },
-  { value: 'in_review', label: 'In Review' },
+  { value: 'reviewing', label: 'Reviewing' },
+  { value: 'proposal_sent', label: 'Proposal Sent' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'completed', label: 'Completed' },
-  { value: 'archived', label: 'Archived' },
+  { value: 'declined', label: 'Declined' },
 ];
 
 const statusColors = {
   new: 'badge--new',
-  in_review: 'badge--review',
+  reviewing: 'badge--review',
+  proposal_sent: 'badge--progress',
   in_progress: 'badge--progress',
   completed: 'badge--completed',
-  archived: 'badge--archived',
+  declined: 'badge--archived',
 };
 
 export default function RequestDetail() {
@@ -47,6 +49,7 @@ export default function RequestDetail() {
   const updateStatus = async (newStatus) => {
     setUpdating(true);
     try {
+      console.log('[VORIKX] Updating project_request status:', { id, status: newStatus });
       const { error } = await supabase
         .from('project_requests')
         .update({ status: newStatus })
@@ -55,7 +58,7 @@ export default function RequestDetail() {
         setRequest((prev) => ({ ...prev, status: newStatus }));
       }
     } catch (err) {
-      console.error('Error:', err);
+      console.error('Error updating status:', err);
     } finally {
       setUpdating(false);
     }
@@ -92,7 +95,7 @@ export default function RequestDetail() {
 
       <div className="request-detail__header">
         <div>
-          <h1 className="admin-header__title">{request.full_name}</h1>
+          <h1 className="admin-header__title">{request.client_name}</h1>
           <p className="admin-header__subtitle">
             Submitted {new Date(request.created_at).toLocaleDateString()} at{' '}
             {new Date(request.created_at).toLocaleTimeString()}
@@ -104,7 +107,7 @@ export default function RequestDetail() {
           </span>
           <select
             className="form-select"
-            value={request.status}
+            value={request.status || 'new'}
             onChange={(e) => updateStatus(e.target.value)}
             disabled={updating}
             style={{ width: 'auto', minWidth: '150px' }}
@@ -123,15 +126,15 @@ export default function RequestDetail() {
       <div className="grid grid-2" style={{ gap: 'var(--space-8)' }}>
         <div className="request-detail__field">
           <div className="request-detail__field-label">Email</div>
-          <div className="request-detail__field-value">{request.email}</div>
+          <div className="request-detail__field-value">{request.client_email}</div>
         </div>
         <div className="request-detail__field">
           <div className="request-detail__field-label">Phone</div>
-          <div className="request-detail__field-value">{request.phone || '—'}</div>
+          <div className="request-detail__field-value">{request.client_phone || '—'}</div>
         </div>
         <div className="request-detail__field">
           <div className="request-detail__field-label">Company</div>
-          <div className="request-detail__field-value">{request.company || '—'}</div>
+          <div className="request-detail__field-value">{request.company_name || '—'}</div>
         </div>
         <div className="request-detail__field">
           <div className="request-detail__field-label">Budget Range</div>
@@ -145,53 +148,23 @@ export default function RequestDetail() {
       </div>
 
       <div className="request-detail__field">
-        <div className="request-detail__field-label">Services Requested</div>
-        <div className="request-detail__services">
-          {request.services?.map((s, i) => (
-            <span key={i} className="process-step__tag">
-              {s.replace(/-/g, ' ')}
-            </span>
-          ))}
+        <div className="request-detail__field-label">Service Type</div>
+        <div className="request-detail__field-value">
+          <span className="process-step__tag">{request.service_type || 'Custom'}</span>
         </div>
       </div>
 
       <hr className="divider" />
 
       <div className="request-detail__field">
-        <div className="request-detail__field-label">Project Description</div>
-        <div className="request-detail__field-value">{request.description}</div>
+        <div className="request-detail__field-label">Project Details</div>
+        <div className="request-detail__field-value">{request.project_details}</div>
       </div>
-
-      {request.goals && (
-        <div className="request-detail__field">
-          <div className="request-detail__field-label">Goals & Success Metrics</div>
-          <div className="request-detail__field-value">{request.goals}</div>
-        </div>
-      )}
 
       {request.additional_info && (
         <div className="request-detail__field">
           <div className="request-detail__field-label">Additional Information</div>
           <div className="request-detail__field-value">{request.additional_info}</div>
-        </div>
-      )}
-
-      {request.file_urls?.length > 0 && (
-        <div className="request-detail__field">
-          <div className="request-detail__field-label">Attachments</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            {request.file_urls.map((url, i) => (
-              <a
-                key={i}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'var(--accent)', fontSize: 'var(--text-sm)' }}
-              >
-                Attachment {i + 1}
-              </a>
-            ))}
-          </div>
         </div>
       )}
     </div>

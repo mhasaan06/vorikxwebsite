@@ -1,16 +1,54 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { projects } from '../data/projects';
+import { supabase } from '../lib/supabase';
+import { projects as fallbackProjects } from '../data/projects';
 
 export default function CaseStudy() {
   const { slug } = useParams();
-  const project = projects.find((p) => p.slug === slug);
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProject() {
+      try {
+        const { data, error } = await supabase
+          .from('portfolio_projects')
+          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order')
+          .eq('slug', slug)
+          .single();
+
+        if (data) {
+          setProject(data);
+        } else {
+          if (error) console.warn('[VORIKX] Note on project fetch:', error.message);
+          const local = fallbackProjects.find((p) => p.slug === slug);
+          setProject(local || null);
+        }
+      } catch (err) {
+        console.error('[VORIKX] Error fetching case study:', err);
+        const local = fallbackProjects.find((p) => p.slug === slug);
+        setProject(local || null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProject();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="loading-page">
+        <div className="spinner" />
+      </div>
+    );
+  }
 
   if (!project) return <Navigate to="/work" replace />;
 
-  const currentIndex = projects.indexOf(project);
-  const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
-  const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
+  const challengeText = project.case_study_content || project.challenge || project.summary;
+  const solutionText = project.solution || project.summary || 'Engineered custom solution with high-scale architecture.';
+  const techList = project.technologies || ['React', 'Node.js', 'PostgreSQL', 'Cloud Engine'];
 
   return (
     <>
@@ -24,85 +62,100 @@ export default function CaseStudy() {
           >
             <ArrowLeft size={16} /> All Projects
           </Link>
-          <span className="section-label">{project.categoryLabel}</span>
+          <span className="section-label">{project.categoryLabel || project.category}</span>
           <h1 className="section-title" style={{ fontSize: 'var(--text-5xl)', marginTop: 'var(--space-3)' }}>
             {project.title}
           </h1>
           <p className="section-subtitle" style={{ maxWidth: '100%' }}>
-            {project.shortDesc}
+            {project.summary || project.shortDesc}
           </p>
           <div className="case-study__meta">
             <div className="case-study__meta-item">
               <span className="case-study__meta-label">Category:</span>
-              {project.categoryLabel}
+              {project.categoryLabel || project.category}
             </div>
             <div className="case-study__meta-item">
               <span className="case-study__meta-label">Tech:</span>
-              {project.technologies.slice(0, 3).join(', ')}
+              {techList.slice(0, 3).join(', ')}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Project image placeholder ── */}
+      {/* ── Cover Image / Screenshot ── */}
       <section style={{ borderBottom: '1px solid var(--border-color)' }}>
         <div className="container">
-          <div
-            style={{
-              width: '100%',
-              height: '400px',
-              backgroundColor: 'var(--bg-secondary)',
-              borderRadius: 'var(--radius-lg)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-secondary)',
-              marginBottom: 'var(--space-12)',
-              border: '1px solid var(--border-color)',
-            }}
-          >
-            Project Screenshot — {project.title}
-          </div>
+          {project.cover_image_url ? (
+            <img
+              src={project.cover_image_url}
+              alt={project.title}
+              style={{
+                width: '100%',
+                maxHeight: '500px',
+                objectFit: 'cover',
+                borderRadius: 'var(--radius-lg)',
+                marginBottom: 'var(--space-12)',
+                border: '1px solid var(--border-color)',
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                height: '350px',
+                backgroundColor: 'var(--bg-secondary)',
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-secondary)',
+                marginBottom: 'var(--space-12)',
+                border: '1px solid var(--border-color)',
+              }}
+            >
+              Project Screenshot — {project.title}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* ── Challenge ── */}
+      {/* ── Case Study Content ── */}
       <section className="section">
         <div className="container container--narrow">
           <div className="case-study__section">
-            <span className="section-label">The Challenge</span>
-            <h3>Problem</h3>
-            <p>{project.challenge}</p>
+            <span className="section-label">Case Study &amp; Challenge</span>
+            <h3>Overview &amp; Problem Statement</h3>
+            <p>{challengeText}</p>
           </div>
 
           <hr className="divider" />
 
           <div className="case-study__section">
-            <span className="section-label">Our Approach</span>
-            <h3>Solution</h3>
-            <p>{project.solution}</p>
+            <span className="section-label">Engineering Solution</span>
+            <h3>Architecture &amp; Implementation</h3>
+            <p>{solutionText}</p>
           </div>
 
-          <hr className="divider" />
-
-          {/* ── Results ── */}
-          <div className="case-study__section">
-            <span className="section-label">Impact</span>
-            <h3>Results</h3>
-            <div className="grid grid-2" style={{ marginTop: 'var(--space-6)' }}>
-              {project.results.map((result, i) => (
-                <div
-                  key={i}
-                  className="card"
-                  style={{ textAlign: 'center', padding: 'var(--space-6)' }}
-                >
-                  <p style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--weight-medium)' }}>
-                    {result}
-                  </p>
+          {/* Gallery if present */}
+          {project.gallery_urls?.length > 0 && (
+            <>
+              <hr className="divider" />
+              <div className="case-study__section">
+                <span className="section-label">Gallery</span>
+                <h3>Project Showcase</h3>
+                <div className="grid grid-2" style={{ marginTop: 'var(--space-6)' }}>
+                  {project.gallery_urls.map((url, i) => (
+                    <img
+                      key={i}
+                      src={url}
+                      alt={`Gallery ${i}`}
+                      style={{ width: '100%', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
 
           <hr className="divider" />
 
@@ -111,59 +164,17 @@ export default function CaseStudy() {
             <span className="section-label">Tech Stack</span>
             <h3>Technologies Used</h3>
             <div className="case-study__tech-tags">
-              {project.technologies.map((tech) => (
+              {techList.map((tech) => (
                 <span key={tech} className="process-step__tag">
                   {tech}
                 </span>
               ))}
             </div>
           </div>
-
-          {/* ── Testimonial ── */}
-          {project.testimonial && (
-            <>
-              <hr className="divider" />
-              <div className="testimonial-card">
-                <p className="testimonial-card__quote">
-                  "{project.testimonial.quote}"
-                </p>
-                <div className="testimonial-card__author">
-                  <div className="testimonial-card__avatar">
-                    {project.testimonial.author.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <div className="testimonial-card__name">
-                      {project.testimonial.author}
-                    </div>
-                    <div className="testimonial-card__role">
-                      {project.testimonial.role}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
         </div>
       </section>
 
-      {/* ── Prev / Next ── */}
-      <section className="section section--slate">
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {prevProject ? (
-              <Link to={`/work/${prevProject.slug}`} className="btn btn--ghost">
-                <ArrowLeft size={16} /> {prevProject.title}
-              </Link>
-            ) : <span />}
-            {nextProject ? (
-              <Link to={`/work/${nextProject.slug}`} className="btn btn--ghost">
-                {nextProject.title} <ArrowRight size={16} />
-              </Link>
-            ) : <span />}
-          </div>
-        </div>
-      </section>
-
+      {/* ── CTA Banner ── */}
       <section className="cta-banner">
         <div className="container">
           <h2 className="cta-banner__title">Want results like these?</h2>

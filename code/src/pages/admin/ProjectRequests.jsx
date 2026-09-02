@@ -4,18 +4,20 @@ import { supabase } from '../../lib/supabase';
 
 const statusColors = {
   new: 'badge--new',
-  in_review: 'badge--review',
+  reviewing: 'badge--review',
+  proposal_sent: 'badge--progress',
   in_progress: 'badge--progress',
   completed: 'badge--completed',
-  archived: 'badge--archived',
+  declined: 'badge--archived',
 };
 
 const statusLabels = {
   new: 'New',
-  in_review: 'In Review',
+  reviewing: 'Reviewing',
+  proposal_sent: 'Proposal Sent',
   in_progress: 'In Progress',
   completed: 'Completed',
-  archived: 'Archived',
+  declined: 'Declined',
 };
 
 export default function ProjectRequests() {
@@ -63,7 +65,7 @@ export default function ProjectRequests() {
       </div>
 
       <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-6)', flexWrap: 'wrap' }}>
-        {['all', 'new', 'in_review', 'in_progress', 'completed', 'archived'].map((f) => (
+        {['all', 'new', 'reviewing', 'proposal_sent', 'in_progress', 'completed', 'declined'].map((f) => (
           <button
             key={f}
             className={`work-filter-btn${filter === f ? ' active' : ''}`}
@@ -80,7 +82,7 @@ export default function ProjectRequests() {
             <tr>
               <th>Client</th>
               <th>Company</th>
-              <th>Services</th>
+              <th>Service Type</th>
               <th>Budget</th>
               <th>Status</th>
               <th>Date</th>
@@ -101,19 +103,17 @@ export default function ProjectRequests() {
                       to={`/admin/requests/${req.id}`}
                       style={{ fontWeight: 'var(--weight-medium)', color: 'var(--text-primary)' }}
                     >
-                      {req.full_name}
+                      {req.client_name}
                     </Link>
                     <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-                      {req.email}
+                      {req.client_email}
                     </div>
                   </td>
-                  <td style={{ color: 'var(--text-secondary)' }}>{req.company || '—'}</td>
+                  <td style={{ color: 'var(--text-secondary)' }}>{req.company_name || '—'}</td>
                   <td>
-                    {req.services?.map((s, i) => (
-                      <span key={i} className="process-step__tag" style={{ marginRight: 'var(--space-1)', marginBottom: 'var(--space-1)', display: 'inline-block' }}>
-                        {s.replace(/-/g, ' ')}
-                      </span>
-                    ))}
+                    <span className="process-step__tag">
+                      {req.service_type || 'Custom'}
+                    </span>
                   </td>
                   <td style={{ color: 'var(--text-secondary)' }}>{req.budget_range || '—'}</td>
                   <td>

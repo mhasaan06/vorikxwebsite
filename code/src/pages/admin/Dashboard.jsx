@@ -4,18 +4,20 @@ import { supabase } from '../../lib/supabase';
 
 const statusColors = {
   new: 'badge--new',
-  in_review: 'badge--review',
+  reviewing: 'badge--review',
+  proposal_sent: 'badge--progress',
   in_progress: 'badge--progress',
   completed: 'badge--completed',
-  archived: 'badge--archived',
+  declined: 'badge--archived',
 };
 
 const statusLabels = {
   new: 'New',
-  in_review: 'In Review',
+  reviewing: 'Reviewing',
+  proposal_sent: 'Proposal Sent',
   in_progress: 'In Progress',
   completed: 'Completed',
-  archived: 'Archived',
+  declined: 'Declined',
 };
 
 export default function Dashboard() {
@@ -35,7 +37,7 @@ export default function Dashboard() {
         setStats({
           total: requests.length,
           new: requests.filter((r) => r.status === 'new').length,
-          inProgress: requests.filter((r) => r.status === 'in_progress').length,
+          inProgress: requests.filter((r) => r.status === 'in_progress' || r.status === 'proposal_sent').length,
           completed: requests.filter((r) => r.status === 'completed').length,
         });
         setRecent(requests.slice(0, 5));
@@ -105,7 +107,7 @@ export default function Dashboard() {
             <tr>
               <th>Client</th>
               <th>Email</th>
-              <th>Services</th>
+              <th>Service Type</th>
               <th>Status</th>
               <th>Date</th>
             </tr>
@@ -120,17 +122,12 @@ export default function Dashboard() {
             ) : (
               recent.map((req) => (
                 <tr key={req.id} onClick={() => navigate(`/admin/requests/${req.id}`)}>
-                  <td style={{ fontWeight: 'var(--weight-medium)' }}>{req.full_name}</td>
-                  <td style={{ color: 'var(--text-secondary)' }}>{req.email}</td>
+                  <td style={{ fontWeight: 'var(--weight-medium)' }}>{req.client_name}</td>
+                  <td style={{ color: 'var(--text-secondary)' }}>{req.client_email}</td>
                   <td>
                     <span className="process-step__tag">
-                      {req.services?.[0]?.replace(/-/g, ' ') || '—'}
+                      {req.service_type || 'Custom'}
                     </span>
-                    {req.services?.length > 1 && (
-                      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginLeft: 'var(--space-1)' }}>
-                        +{req.services.length - 1}
-                      </span>
-                    )}
                   </td>
                   <td>
                     <span className={`badge ${statusColors[req.status] || ''}`}>

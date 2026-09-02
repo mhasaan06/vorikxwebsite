@@ -26,14 +26,18 @@ export default function Contact() {
     setError('');
 
     try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+        status: 'unread',
+      };
+
+      console.log('[VORIKX] Inserting payload to contact_messages:', payload);
+
       const { error: insertError } = await supabase
         .from('contact_messages')
-        .insert({
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject || null,
-          message: formData.message,
-        });
+        .insert(payload);
 
       if (insertError) throw insertError;
       setSubmitted(true);

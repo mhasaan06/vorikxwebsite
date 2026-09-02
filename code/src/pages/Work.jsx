@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { projects } from '../data/projects';
+import { supabase } from '../lib/supabase';
+import { projects as fallbackProjects } from '../data/projects';
 
 const filters = [
   { key: 'all', label: 'All' },
@@ -13,11 +14,42 @@ const filters = [
 
 export default function Work() {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [projectsList, setProjectsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPortfolio() {
+      try {
+        const { data, error } = await supabase
+          .from('portfolio_projects')
+          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order')
+          .order('display_order', { ascending: true });
+
+        if (data && data.length > 0) {
+          setProjectsList(data);
+        } else {
+          if (error) console.warn('[VORIKX] Note on portfolio_projects table:', error.message);
+          // Fallback to local static items
+          setProjectsList(fallbackProjects);
+        }
+      } catch (err) {
+        console.error('[VORIKX] Portfolio fetch error:', err);
+        setProjectsList(fallbackProjects);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPortfolio();
+  }, []);
 
   const filteredProjects =
     activeFilter === 'all'
-      ? projects
-      : projects.filter((p) => p.category === activeFilter);
+      ? projectsList
+      : projectsList.filter(
+          (p) =>
+            p.category?.toLowerCase() === activeFilter.toLowerCase() ||
+            p.categoryLabel?.toLowerCase() === activeFilter.toLowerCase()
+        );
 
   return (
     <>
@@ -50,32 +82,48 @@ export default function Work() {
             ))}
           </div>
 
-          <div className="work-grid">
-            {filteredProjects.map((project) => (
-              <Link
-                key={project.slug}
-                to={`/work/${project.slug}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <div className="project-card">
-                  <div className="project-card__image">
-                    <span className="project-card__placeholder">
-                      {project.title}
-                    </span>
+          {loading ? (
+            <div className="loading-page">
+              <div className="spinner" />
+            </div>
+          ) : (
+            <div className="work-grid">
+              {filteredProjects.map((project) => (
+                <Link
+                  key={project.slug}
+                  to={`/work/${project.slug}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div className="project-card">
+                    <div className="project-card__image">
+                      {project.cover_image_url ? (
+                        <img
+                          src={project.cover_image_url}
+                          alt={project.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <span className="project-card__placeholder">
+                          {project.title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="project-card__body">
+                      <span className="project-card__category">
+                        {project.categoryLabel || project.category}
+                      </span>
+                      <h3 className="project-card__title">{project.title}</h3>
+                      <p className="project-card__desc">
+                        {project.summary || project.shortDesc}
+                      </p>
+                    </div>
                   </div>
-                  <div className="project-card__body">
-                    <span className="project-card__category">
-                      {project.categoryLabel}
-                    </span>
-                    <h3 className="project-card__title">{project.title}</h3>
-                    <p className="project-card__desc">{project.shortDesc}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
-          {filteredProjects.length === 0 && (
+          {!loading && filteredProjects.length === 0 && (
             <div style={{ textAlign: 'center', padding: 'var(--space-16) 0' }}>
               <p style={{ color: 'var(--text-secondary)' }}>
                 No projects found in this category.
