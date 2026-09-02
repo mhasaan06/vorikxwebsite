@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, Check, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { services } from '../data/services';
+import { services as availableServices } from '../data/services';
 
 const steps = [
   'Your Info',
@@ -36,17 +36,19 @@ export default function StartProject() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // State keys map 1-to-1 with PostgreSQL column names
   const [formData, setFormData] = useState({
-    fullName: '',
+    full_name: '',
     email: '',
     company: '',
     phone: '',
-    selectedServices: [],
+    services: [], // TEXT[] Array of selected service slugs
     description: '',
     goals: '',
-    budgetRange: '',
+    budget_range: '',
     timeline: '',
-    additionalInfo: '',
+    additional_info: '',
     files: [],
   });
 
@@ -57,22 +59,22 @@ export default function StartProject() {
   const toggleService = (slug) => {
     setFormData((prev) => ({
       ...prev,
-      selectedServices: prev.selectedServices.includes(slug)
-        ? prev.selectedServices.filter((s) => s !== slug)
-        : [...prev.selectedServices, slug],
+      services: prev.services.includes(slug)
+        ? prev.services.filter((s) => s !== slug)
+        : [...prev.services, slug],
     }));
   };
 
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        return formData.fullName.trim() && formData.email.trim();
+        return formData.full_name.trim() !== '' && formData.email.trim() !== '';
       case 1:
-        return formData.selectedServices.length > 0;
+        return Array.isArray(formData.services) && formData.services.length > 0;
       case 2:
-        return formData.description.trim();
+        return formData.description.trim() !== '';
       case 3:
-        return formData.budgetRange && formData.timeline;
+        return Boolean(formData.budget_range && formData.timeline);
       default:
         return true;
     }
@@ -83,38 +85,43 @@ export default function StartProject() {
     setError('');
 
     try {
-      // Upload files if any
+      // 1. Upload files to Supabase Storage if present
       let fileUrls = [];
-      for (const file of formData.files) {
-        const fileName = `${Date.now()}-${file.name}`;
-        const { data, error: uploadError } = await supabase.storage
-          .from('project-files')
-          .upload(fileName, file);
-        if (uploadError) {
-          console.warn('File upload failed:', uploadError.message);
-        } else if (data) {
-          const { data: urlData } = supabase.storage
+      if (formData.files && formData.files.length > 0) {
+        for (const file of formData.files) {
+          const fileName = `${Date.now()}-${file.name}`;
+          const { data, error: uploadError } = await supabase.storage
             .from('project-files')
-            .getPublicUrl(data.path);
-          fileUrls.push(urlData.publicUrl);
+            .upload(fileName, file);
+          if (uploadError) {
+            console.warn('File upload skipped or storage bucket not initialized:', uploadError.message);
+          } else if (data) {
+            const { data: urlData } = supabase.storage
+              .from('project-files')
+              .getPublicUrl(data.path);
+            if (urlData?.publicUrl) {
+              fileUrls.push(urlData.publicUrl);
+            }
+          }
         }
       }
 
+      // 2. Construct payload matching exact PostgreSQL schema types & NOT NULL constraints
       const payload = {
-        full_name: formData.fullName,
-        email: formData.email,
-        company: formData.company || null,
-        phone: formData.phone || null,
-        services: formData.selectedServices,
-        description: formData.description,
-        goals: formData.goals || null,
-        budget_range: formData.budgetRange,
-        timeline: formData.timeline,
-        additional_info: formData.additionalInfo || null,
-        file_urls: fileUrls.length > 0 ? fileUrls : null,
+        full_name: formData.full_name.trim(),
+        email: formData.email.trim(),
+        company: formData.company.trim() || null,
+        phone: formData.phone.trim() || null,
+        services: Array.isArray(formData.services) ? formData.services : [], // TEXT[] NOT NULL
+        description: formData.description.trim(), // TEXT NOT NULL
+        goals: formData.goals.trim() || null,
+        budget_range: formData.budget_range || null,
+        timeline: formData.timeline || null,
+        additional_info: formData.additional_info.trim() || null,
+        file_urls: fileUrls, // TEXT[] DEFAULT '{}'
       };
 
-      console.log('[VORIKX] Inserting payload to project_requests:', payload);
+      console.log('[VORIKX] Complete payload for project_requests insert:', JSON.stringify(payload, null, 2));
 
       const { error: insertError } = await supabase
         .from('project_requests')
@@ -124,6 +131,7 @@ export default function StartProject() {
 
       setSubmitted(true);
     } catch (err) {
+      console.error('[VORIKX] Submission failure:', err);
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
@@ -140,7 +148,7 @@ export default function StartProject() {
             </div>
             <h2 className="section-title">Project request submitted!</h2>
             <p className="section-subtitle" style={{ margin: 'var(--space-4) auto 0', maxWidth: '480px' }}>
-              Thank you, {formData.fullName}. We have received your project details
+              Thank you, {formData.full_name}. We have received your project details
               and will be in touch within 1–2 business days.
             </p>
             <div style={{ marginTop: 'var(--space-8)', display: 'flex', gap: 'var(--space-4)', justifyContent: 'center' }}>
@@ -204,8 +212,8 @@ export default function StartProject() {
                   className="form-input"
                   type="text"
                   placeholder="John Doe"
-                  value={formData.fullName}
-                  onChange={(e) => updateField('fullName', e.target.value)}
+                  value={formData.full_name}
+                  onChange={(e) => updateField('full_name', e.target.value)}
                 />
               </div>
               <div className="form-group">
@@ -242,7 +250,7 @@ export default function StartProject() {
           </div>
         )}
 
-        {/* Step 1: Services */}
+        {/* Step 1: Services (Multi-Select Array) */}
         {currentStep === 1 && (
           <div>
             <h3 style={{ marginBottom: 'var(--space-2)' }}>What do you need?</h3>
@@ -250,28 +258,28 @@ export default function StartProject() {
               Select all services that apply to your project.
             </p>
             <div className="grid grid-2">
-              {services.map((service) => (
+              {availableServices.map((service) => (
                 <label
                   key={service.slug}
                   className="form-checkbox"
                   style={{
                     padding: 'var(--space-4)',
                     border: `1px solid ${
-                      formData.selectedServices.includes(service.slug)
+                      formData.services.includes(service.slug)
                         ? 'var(--accent)'
                         : 'var(--border-color)'
                     }`,
                     borderRadius: 'var(--radius-md)',
                     cursor: 'pointer',
                     transition: 'border-color var(--transition-fast)',
-                    backgroundColor: formData.selectedServices.includes(service.slug)
+                    backgroundColor: formData.services.includes(service.slug)
                       ? 'var(--color-deep-teal-muted)'
                       : 'transparent',
                   }}
                 >
                   <input
                     type="checkbox"
-                    checked={formData.selectedServices.includes(service.slug)}
+                    checked={formData.services.includes(service.slug)}
                     onChange={() => toggleService(service.slug)}
                   />
                   <div>
@@ -325,13 +333,13 @@ export default function StartProject() {
                     style={{
                       padding: 'var(--space-3) var(--space-4)',
                       border: `1px solid ${
-                        formData.budgetRange === range
+                        formData.budget_range === range
                           ? 'var(--accent)'
                           : 'var(--border-color)'
                       }`,
                       borderRadius: 'var(--radius-md)',
                       cursor: 'pointer',
-                      backgroundColor: formData.budgetRange === range
+                      backgroundColor: formData.budget_range === range
                         ? 'var(--color-deep-teal-muted)'
                         : 'transparent',
                     }}
@@ -340,8 +348,8 @@ export default function StartProject() {
                       type="radio"
                       name="budget"
                       style={{ display: 'none' }}
-                      checked={formData.budgetRange === range}
-                      onChange={() => updateField('budgetRange', range)}
+                      checked={formData.budget_range === range}
+                      onChange={() => updateField('budget_range', range)}
                     />
                     {range}
                   </label>
@@ -393,8 +401,8 @@ export default function StartProject() {
               <textarea
                 className="form-textarea"
                 placeholder="Links to references, existing systems, design files, or any other relevant details..."
-                value={formData.additionalInfo}
-                onChange={(e) => updateField('additionalInfo', e.target.value)}
+                value={formData.additional_info}
+                onChange={(e) => updateField('additional_info', e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -441,7 +449,7 @@ export default function StartProject() {
 
             <div className="request-detail__field">
               <div className="request-detail__field-label">Name</div>
-              <div className="request-detail__field-value">{formData.fullName}</div>
+              <div className="request-detail__field-value">{formData.full_name}</div>
             </div>
             <div className="request-detail__field">
               <div className="request-detail__field-label">Email</div>
@@ -462,8 +470,8 @@ export default function StartProject() {
             <div className="request-detail__field">
               <div className="request-detail__field-label">Services</div>
               <div className="request-detail__services">
-                {formData.selectedServices.map((slug) => {
-                  const s = services.find((sv) => sv.slug === slug);
+                {formData.services.map((slug) => {
+                  const s = availableServices.find((sv) => sv.slug === slug);
                   return (
                     <span key={slug} className="process-step__tag">
                       {s?.title || slug}
@@ -484,16 +492,16 @@ export default function StartProject() {
             )}
             <div className="request-detail__field">
               <div className="request-detail__field-label">Budget</div>
-              <div className="request-detail__field-value">{formData.budgetRange}</div>
+              <div className="request-detail__field-value">{formData.budget_range}</div>
             </div>
             <div className="request-detail__field">
               <div className="request-detail__field-label">Timeline</div>
               <div className="request-detail__field-value">{formData.timeline}</div>
             </div>
-            {formData.additionalInfo && (
+            {formData.additional_info && (
               <div className="request-detail__field">
                 <div className="request-detail__field-label">Additional Information</div>
-                <div className="request-detail__field-value">{formData.additionalInfo}</div>
+                <div className="request-detail__field-value">{formData.additional_info}</div>
               </div>
             )}
             {formData.files.length > 0 && (
