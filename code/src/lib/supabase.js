@@ -1,10 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Fallback to environment variables or project defaults to prevent top-level module crash on Vercel
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL ||
+  'https://pqebycjcwagorvdmpjfs.supabase.co';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase URL or Anon Key not found in environment variables.');
-}
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  'sb_publishable_FWm3A3YApxcBcjmAZ7VslQ_l9go7tD5';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

@@ -1,0 +1,10 @@
+{
+  "name": "vorikx-website-root",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd code && npm install && npm run build",
+    "dev": "cd code && npm run dev",
+    "lint": "cd code && npm run lint"
+  }
+}
