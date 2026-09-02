@@ -97,15 +97,8 @@ export default function Home() {
                 SOFTWARE DEVELOPMENT &amp; DIGITAL AGENCY
               </span>
               <h1 className="hero__title">
-                <span className="hero-animate-word" style={{ animationDelay: '0ms' }}>Turn&nbsp;</span>
-                <span className="hero-animate-word" style={{ animationDelay: '80ms' }}>ideas&nbsp;</span>
-                <span className="hero-animate-word" style={{ animationDelay: '160ms' }}>into&nbsp;</span>
-                <span className="hero-animate-word" style={{ animationDelay: '240ms' }}>scalable</span>
-                <br />
-                <span className="gradient-text">
-                  <span className="hero-animate-word" style={{ animationDelay: '320ms' }}>digital&nbsp;</span>
-                  <span className="hero-animate-word" style={{ animationDelay: '400ms' }}>products</span>
-                </span>
+                <span className="hero__title-line hero__title-line--1">Turn ideas into scalable</span>
+                <span className="hero__title-line hero__title-line--2 gradient-text">digital products</span>
               </h1>
               <p className="hero__subtitle">
                 We partner with ambitious startups and enterprises to design, engineer, and deploy high-performance web platforms, mobile apps, custom software, and AI automation.
