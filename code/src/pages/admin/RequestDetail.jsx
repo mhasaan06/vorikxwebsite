@@ -169,10 +169,10 @@ export default function RequestDetail() {
         </div>
       )}
 
-      {request.additional_notes && (
+      {request.additional_info && (
         <div className="request-detail__field">
-          <div className="request-detail__field-label">Additional Notes</div>
-          <div className="request-detail__field-value">{request.additional_notes}</div>
+          <div className="request-detail__field-label">Additional Information</div>
+          <div className="request-detail__field-value">{request.additional_info}</div>
         </div>
       )}
 

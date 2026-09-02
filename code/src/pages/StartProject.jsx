@@ -46,7 +46,7 @@ export default function StartProject() {
     goals: '',
     budgetRange: '',
     timeline: '',
-    additionalNotes: '',
+    additionalInfo: '',
     files: [],
   });
 
@@ -112,7 +112,7 @@ export default function StartProject() {
           goals: formData.goals || null,
           budget_range: formData.budgetRange,
           timeline: formData.timeline,
-          additional_notes: formData.additionalNotes || null,
+          additional_info: formData.additionalInfo || null,
           file_urls: fileUrls.length > 0 ? fileUrls : null,
         });
 
@@ -389,8 +389,8 @@ export default function StartProject() {
               <textarea
                 className="form-textarea"
                 placeholder="Links to references, existing systems, design files, or any other relevant details..."
-                value={formData.additionalNotes}
-                onChange={(e) => updateField('additionalNotes', e.target.value)}
+                value={formData.additionalInfo}
+                onChange={(e) => updateField('additionalInfo', e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -486,10 +486,10 @@ export default function StartProject() {
               <div className="request-detail__field-label">Timeline</div>
               <div className="request-detail__field-value">{formData.timeline}</div>
             </div>
-            {formData.additionalNotes && (
+            {formData.additionalInfo && (
               <div className="request-detail__field">
-                <div className="request-detail__field-label">Additional Notes</div>
-                <div className="request-detail__field-value">{formData.additionalNotes}</div>
+                <div className="request-detail__field-label">Additional Information</div>
+                <div className="request-detail__field-value">{formData.additionalInfo}</div>
               </div>
             )}
             {formData.files.length > 0 && (

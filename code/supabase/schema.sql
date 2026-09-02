@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS project_requests (
   goals TEXT,
   budget_range TEXT,
   timeline TEXT,
-  additional_notes TEXT,
+  additional_info TEXT,
   file_urls TEXT[] DEFAULT '{}',
   status TEXT DEFAULT 'new' CHECK (status IN ('new', 'in_review', 'in_progress', 'completed', 'archived'))
 );
