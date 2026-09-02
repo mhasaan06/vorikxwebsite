@@ -100,21 +100,25 @@ export default function StartProject() {
         }
       }
 
+      const payload = {
+        full_name: formData.fullName,
+        email: formData.email,
+        company: formData.company || null,
+        phone: formData.phone || null,
+        services: formData.selectedServices,
+        description: formData.description,
+        goals: formData.goals || null,
+        budget_range: formData.budgetRange,
+        timeline: formData.timeline,
+        additional_info: formData.additionalInfo || null,
+        file_urls: fileUrls.length > 0 ? fileUrls : null,
+      };
+
+      console.log('[VORIKX] Inserting payload to project_requests:', payload);
+
       const { error: insertError } = await supabase
         .from('project_requests')
-        .insert({
-          full_name: formData.fullName,
-          email: formData.email,
-          company: formData.company || null,
-          phone: formData.phone || null,
-          services: formData.selectedServices,
-          description: formData.description,
-          goals: formData.goals || null,
-          budget_range: formData.budgetRange,
-          timeline: formData.timeline,
-          additional_info: formData.additionalInfo || null,
-          file_urls: fileUrls.length > 0 ? fileUrls : null,
-        });
+        .insert(payload);
 
       if (insertError) throw insertError;
 
