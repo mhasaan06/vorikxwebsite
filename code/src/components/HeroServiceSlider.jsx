@@ -301,7 +301,7 @@ export default function HeroServiceSlider() {
         {/* Footer Info & Caption */}
         <div className="hero-slider__footer">
           <div>
-            <h4 className="hero-slider__title">{currentSlide.title}</h4>
+            <div className="hero-slider__title">{currentSlide.title}</div>
             <p className="hero-slider__caption">{currentSlide.caption}</p>
           </div>
           <Link

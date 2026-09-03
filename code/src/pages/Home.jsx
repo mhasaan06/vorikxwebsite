@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight, ChevronDown, Shield, Zap, Users, Headphones, Building, Rocket, Building2, ShieldCheck, Cpu, Sparkles
+  ArrowRight, ChevronDown, Shield, Zap, Users, Headphones, Building, Rocket, Building2, ShieldCheck, Cpu, Sparkles, Clock, ExternalLink
 } from 'lucide-react';
 import { services } from '../data/services';
 import { projects } from '../data/projects';
 import { clients, industries, stats, testimonials, faq } from '../data/content';
 
 import HeroServiceSlider from '../components/HeroServiceSlider';
+import SEO from '../components/SEO';
 
 const industryIcons = {
   startups: Rocket,
@@ -85,8 +86,31 @@ export default function Home() {
   const featuredProjects = projects.slice(0, 3);
   const marqueeClients = [...clients, ...clients];
 
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'VORIKX',
+    url: 'https://vorikx.com',
+    logo: 'https://vorikx.com/vorikxlogo.png',
+    email: 'info@vorikx.com',
+    telephone: '+92-340-5488826',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Lahore',
+      addressCountry: 'PK',
+    },
+  };
+
   return (
     <>
+      <SEO
+        title="VORIKX — Software & Technologies | Turn Ideas into Scalable Digital Products"
+        description="VORIKX is a digital software engineering agency based in Lahore, Pakistan. We design, engineer, and deploy high-performance web platforms, mobile apps, custom software, and AI automation."
+        url="https://vorikx.com"
+        image="/og-image.png"
+        schemaJson={organizationSchema}
+      />
+
       {/* ── 1. Hero Section with Radial Glow, Gradient Headline & Service Slider Panel ── */}
       <section className="hero glow-bg">
         <div className="container">
@@ -156,22 +180,21 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-3">
-            {services.map((service, idx) => {
+            {services.filter((s) => !s.isComingSoon).map((service) => {
               const Icon = service.icon;
-              const isFeatured = idx === 0; // Flagship Web Development featured wider/first
               return (
                 <Link
                   key={service.slug}
                   to={`/services/${service.slug}`}
-                  style={{
-                    textDecoration: 'none',
-                    gridColumn: isFeatured ? 'span 1' : 'span 1',
-                  }}
+                  style={{ textDecoration: 'none' }}
                 >
                   <div className="card card--interactive" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
-                      <div className="card__icon">
-                        <Icon size={28} />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
+                        <div className="card__icon" style={{ margin: 0 }}>
+                          <Icon size={28} />
+                        </div>
+                        <span className="badge badge--new" style={{ fontSize: '0.65rem' }}>Active</span>
                       </div>
                       <span className="section-label" style={{ fontSize: '0.65rem', marginBottom: 'var(--space-2)', display: 'block' }}>
                         {service.category}
@@ -179,7 +202,7 @@ export default function Home() {
                       <h3 className="card__title">{service.title}</h3>
                       <p className="card__text">{service.shortDesc}</p>
                     </div>
-                    <span className="card__link">
+                    <span className="card__link" style={{ marginTop: 'var(--space-4)' }}>
                       Learn more <ArrowRight size={14} />
                     </span>
                   </div>
@@ -187,6 +210,47 @@ export default function Home() {
               );
             })}
           </div>
+
+          {/* Coming Soon Services Preview */}
+          <div style={{ marginTop: 'var(--space-10)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
+              <span className="badge badge--coming-soon" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <Clock size={13} /> COMING SOON
+              </span>
+              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                Upcoming Capabilities in Development
+              </span>
+            </div>
+            <div className="grid grid-4">
+              {services.filter((s) => s.isComingSoon).map((service) => {
+                const Icon = service.icon;
+                return (
+                  <Link
+                    key={service.slug}
+                    to={`/services/${service.slug}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div className="card card--coming-soon card--interactive" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 'var(--space-6)' }}>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                          <div className="card__icon" style={{ margin: 0, color: 'var(--color-silver)' }}>
+                            <Icon size={22} />
+                          </div>
+                          <span className="badge badge--coming-soon" style={{ fontSize: '0.6rem' }}>Soon</span>
+                        </div>
+                        <h4 className="card__title" style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-1)' }}>{service.title}</h4>
+                        <p className="card__text" style={{ fontSize: 'var(--text-xs)', lineHeight: 1.5 }}>{service.shortDesc}</p>
+                      </div>
+                      <span className="card__link" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-silver)', marginTop: 'var(--space-3)' }}>
+                        Preview <ArrowRight size={12} />
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
           <div style={{ textAlign: 'center', marginTop: 'var(--space-12)' }}>
             <Link to="/services" className="btn btn--secondary btn--lg">
               View All Services <ArrowRight size={16} />
@@ -340,14 +404,32 @@ export default function Home() {
               >
                 <div className="project-card">
                   <div className="project-card__image">
-                    <span className="project-card__placeholder">
-                      {project.title}
-                    </span>
+                    {project.cover_image_url ? (
+                      <img
+                        src={project.cover_image_url}
+                        alt={`Screenshot preview of ${project.title} software platform developed by VORIKX`}
+                        width="600"
+                        height="340"
+                        loading="lazy"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <span className="project-card__placeholder">
+                        {project.title}
+                      </span>
+                    )}
                   </div>
                   <div className="project-card__body">
-                    <span className="project-card__category">
-                      {project.categoryLabel}
-                    </span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                      <span className="project-card__category" style={{ marginBottom: 0 }}>
+                        {project.categoryLabel}
+                      </span>
+                      {project.live_url && (
+                        <span className="badge badge--new" style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          Live Site <ExternalLink size={10} />
+                        </span>
+                      )}
+                    </div>
                     <h3 className="project-card__title">{project.title}</h3>
                     <p className="project-card__desc">{project.shortDesc}</p>
                   </div>

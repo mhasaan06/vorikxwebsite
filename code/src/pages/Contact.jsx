@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Mail, Phone, MapPin } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import SEO from '../components/SEO';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -50,27 +51,40 @@ export default function Contact() {
 
   if (submitted) {
     return (
-      <section className="page-top">
-        <div className="container container--narrow">
-          <div className="success-message">
-            <div className="success-message__icon">
-              <Check size={32} />
+      <>
+        <SEO
+          title="Message Sent | Contact Us | VORIKX"
+          description="Thank you for contacting VORIKX. We have received your message and will respond within 24 hours."
+          url="https://vorikx.com/contact"
+        />
+        <section className="page-top">
+          <div className="container container--narrow">
+            <div className="success-message">
+              <div className="success-message__icon">
+                <Check size={32} />
+              </div>
+              <h1 className="section-title">Message sent!</h1>
+              <p className="section-subtitle" style={{ margin: 'var(--space-4) auto 0' }}>
+                Thank you for reaching out. We will get back to you within 24 hours.
+              </p>
+              <Link to="/" className="btn btn--primary" style={{ marginTop: 'var(--space-8)' }}>
+                Back to Home
+              </Link>
             </div>
-            <h2 className="section-title">Message sent!</h2>
-            <p className="section-subtitle" style={{ margin: 'var(--space-4) auto 0' }}>
-              Thank you for reaching out. We will get back to you within 24 hours.
-            </p>
-            <Link to="/" className="btn btn--primary" style={{ marginTop: 'var(--space-8)' }}>
-              Back to Home
-            </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      </>
     );
   }
 
   return (
     <>
+      <SEO
+        title="Contact Us | VORIKX — Software & Technologies"
+        description="Get in touch with VORIKX software development agency. Reach our Lahore engineering office by email at info@vorikx.com or phone +92 340 5488826."
+        url="https://vorikx.com/contact"
+      />
+
       <section className="page-top">
         <div className="container">
           <div className="section-header" style={{ maxWidth: '680px' }}>
@@ -88,6 +102,9 @@ export default function Contact() {
 
       <section className="section">
         <div className="container">
+          <h2 style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>
+            Send a Message or Find Our Contact Details
+          </h2>
           <div className="contact-grid">
             <div>
               {error && (
@@ -159,7 +176,11 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="contact-info-label">Email</div>
-                  <div className="contact-info-value">hello@vorikx.com</div>
+                  <div className="contact-info-value">
+                    <a href="mailto:info@vorikx.com" style={{ color: 'inherit', textDecoration: 'none' }}>
+                      info@vorikx.com
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="contact-info-item">
@@ -168,7 +189,11 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="contact-info-label">Phone</div>
-                  <div className="contact-info-value">+1 (555) 000-0000</div>
+                  <div className="contact-info-value">
+                    <a href="tel:+923405488826" style={{ color: 'inherit', textDecoration: 'none' }}>
+                      +92 340 5488826
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="contact-info-item">
@@ -176,10 +201,9 @@ export default function Contact() {
                   <MapPin size={18} />
                 </div>
                 <div>
-                  <div className="contact-info-label">Office</div>
+                  <div className="contact-info-label">Location</div>
                   <div className="contact-info-value">
-                    123 Tech Avenue<br />
-                    San Francisco, CA 94105
+                    Lahore, Pakistan
                   </div>
                 </div>
               </div>
@@ -187,9 +211,9 @@ export default function Contact() {
               <hr className="divider" />
 
               <div>
-                <h4 style={{ marginBottom: 'var(--space-3)' }}>
+                <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-3)' }}>
                   Prefer to start a project directly?
-                </h4>
+                </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)' }}>
                   Use our detailed project form to give us all the information
                   we need to get started.

@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { services } from '../data/services';
 import { projects } from '../data/projects';
+import SEO from '../components/SEO';
 
 export default function ServiceDetail() {
   const { slug } = useParams();
@@ -26,6 +27,12 @@ export default function ServiceDetail() {
 
   return (
     <>
+      <SEO
+        title={`${service.title} Solutions | VORIKX Software & Technologies`}
+        description={service.fullDesc || service.shortDesc}
+        url={`https://vorikx.com/services/${service.slug}`}
+      />
+
       {/* ── Hero ── */}
       <section className="service-detail__hero">
         <div className="container">
@@ -60,9 +67,9 @@ export default function ServiceDetail() {
           <div className="service-detail__features">
             {service.features.map((feature) => (
               <div key={feature.title} className="card">
-                <h4 className="card__title" style={{ fontSize: 'var(--text-lg)' }}>
+                <h3 className="card__title" style={{ fontSize: 'var(--text-lg)' }}>
                   {feature.title}
-                </h4>
+                </h3>
                 <p className="card__text">{feature.desc}</p>
               </div>
             ))}
@@ -106,9 +113,18 @@ export default function ServiceDetail() {
                 >
                   <div className="project-card">
                     <div className="project-card__image">
-                      <span className="project-card__placeholder">
-                        {project.title}
-                      </span>
+                      {project.cover_image_url ? (
+                        <img
+                          src={project.cover_image_url}
+                          alt={`Screenshot of ${project.title}`}
+                          loading="lazy"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <span className="project-card__placeholder">
+                          {project.title}
+                        </span>
+                      )}
                     </div>
                     <div className="project-card__body">
                       <span className="project-card__category">

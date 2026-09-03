@@ -256,6 +256,26 @@
   color: var(--color-silver);
 }
 
+.badge--coming-soon {
+  background-color: rgba(190, 199, 201, 0.12);
+  color: var(--color-silver);
+  border: 1px solid rgba(190, 199, 201, 0.25);
+  letter-spacing: 0.04em;
+}
+
+.card--coming-soon {
+  opacity: 0.82;
+  border-style: dashed;
+  position: relative;
+  background: linear-gradient(180deg, rgba(21, 27, 30, 0.6) 0%, rgba(11, 14, 16, 0.8) 100%);
+}
+
+.card--coming-soon:hover {
+  opacity: 1;
+  border-style: solid;
+  border-color: var(--color-silver);
+}
+
 /* ── Divider ── */
 .divider {
   height: 1px;

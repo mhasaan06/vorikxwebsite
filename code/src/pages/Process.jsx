@@ -1,10 +1,17 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { processSteps } from '../data/content';
+import SEO from '../components/SEO';
 
 export default function Process() {
   return (
     <>
+      <SEO
+        title="Our Engineering Process & Methodology | VORIKX"
+        description="Explore how VORIKX delivers digital products — from discovery and system architecture to agile delivery and ongoing maintenance."
+        url="https://vorikx.com/process"
+      />
+
       <section className="page-top">
         <div className="container">
           <div className="section-header" style={{ maxWidth: '680px' }}>
@@ -22,6 +29,9 @@ export default function Process() {
 
       <section className="section">
         <div className="container" style={{ maxWidth: '800px' }}>
+          <h2 style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>
+            Agile Development &amp; Delivery Lifecycle
+          </h2>
           <div className="process-timeline">
             {processSteps.map((step) => (
               <div key={step.number} className="process-step">

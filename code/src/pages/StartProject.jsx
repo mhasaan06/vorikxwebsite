@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { services as availableServices } from '../data/services';
+import SEO from '../components/SEO';
 
 const steps = [
   'Your Info',
@@ -119,42 +120,55 @@ export default function StartProject() {
 
   if (submitted) {
     return (
-      <section className="page-top">
-        <div className="container container--narrow">
-          <div className="success-message">
-            <div className="success-message__icon">
-              <Check size={32} />
-            </div>
-            <h2 className="section-title">Project request submitted!</h2>
-            <p className="section-subtitle" style={{ margin: 'var(--space-4) auto 0', maxWidth: '480px' }}>
-              Thank you, {formData.client_name}. We have received your project details
-              and will be in touch within 1–2 business days.
-            </p>
-            <div style={{ marginTop: 'var(--space-8)', display: 'flex', gap: 'var(--space-4)', justifyContent: 'center' }}>
-              <Link to="/" className="btn btn--secondary">
-                Back to Home
-              </Link>
-              <Link to="/work" className="btn btn--primary">
-                View Our Work
-              </Link>
+      <>
+        <SEO
+          title="Project Request Submitted | VORIKX"
+          description="Thank you for submitting your project details. The VORIKX team will review your requirements and respond within 1–2 business days."
+          url="https://vorikx.com/start-project"
+        />
+        <section className="page-top">
+          <div className="container container--narrow">
+            <div className="success-message">
+              <div className="success-message__icon">
+                <Check size={32} />
+              </div>
+              <h1 className="section-title">Project request submitted!</h1>
+              <p className="section-subtitle" style={{ margin: 'var(--space-4) auto 0', maxWidth: '480px' }}>
+                Thank you, {formData.client_name}. We have received your project details
+                and will be in touch within 1–2 business days.
+              </p>
+              <div style={{ marginTop: 'var(--space-8)', display: 'flex', gap: 'var(--space-4)', justifyContent: 'center' }}>
+                <Link to="/" className="btn btn--secondary">
+                  Back to Home
+                </Link>
+                <Link to="/work" className="btn btn--primary">
+                  View Our Work
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </>
     );
   }
 
   return (
-    <section className="page-top">
-      <div className="container container--narrow">
-        <div className="section-header">
-          <span className="section-label">Start a Project</span>
-          <h1 className="section-title">Tell us about your project</h1>
-          <p className="section-subtitle">
-            Fill in the details below and we will get back to you within
-            1–2 business days with a tailored proposal.
-          </p>
-        </div>
+    <>
+      <SEO
+        title="Start a Project | Request a Scoped Proposal | VORIKX"
+        description="Tell us about your project vision, timeline, and requirements. Submit your project request to receive a scoped technical proposal from VORIKX."
+        url="https://vorikx.com/start-project"
+      />
+      <section className="page-top">
+        <div className="container container--narrow">
+          <div className="section-header">
+            <span className="section-label">Start a Project</span>
+            <h1 className="section-title">Tell us about your project</h1>
+            <p className="section-subtitle">
+              Fill in the details below and we will get back to you within
+              1–2 business days with a tailored proposal.
+            </p>
+          </div>
 
         {/* Step indicator */}
         <div className="form-steps">
@@ -183,7 +197,7 @@ export default function StartProject() {
         {/* Step 0: Your Info */}
         {currentStep === 0 && (
           <div>
-            <h3 style={{ marginBottom: 'var(--space-6)' }}>Your Information</h3>
+            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', marginBottom: 'var(--space-6)', color: 'var(--text-primary)' }}>Your Information</h2>
             <div className="grid grid-2">
               <div className="form-group">
                 <label className="form-label">Full Name *</label>
@@ -232,7 +246,7 @@ export default function StartProject() {
         {/* Step 1: Services */}
         {currentStep === 1 && (
           <div>
-            <h3 style={{ marginBottom: 'var(--space-2)' }}>What do you need?</h3>
+            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', marginBottom: 'var(--space-2)', color: 'var(--text-primary)' }}>What do you need?</h2>
             <p className="text-silver text-sm" style={{ marginBottom: 'var(--space-6)' }}>
               Select all services that apply to your project.
             </p>
@@ -275,7 +289,7 @@ export default function StartProject() {
         {/* Step 2: Project Details */}
         {currentStep === 2 && (
           <div>
-            <h3 style={{ marginBottom: 'var(--space-6)' }}>Project Details</h3>
+            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', marginBottom: 'var(--space-6)', color: 'var(--text-primary)' }}>Project Details</h2>
             <div className="form-group">
               <label className="form-label">Project Description *</label>
               <textarea
@@ -292,7 +306,7 @@ export default function StartProject() {
         {/* Step 3: Budget & Timeline */}
         {currentStep === 3 && (
           <div>
-            <h3 style={{ marginBottom: 'var(--space-6)' }}>Budget & Timeline</h3>
+            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', marginBottom: 'var(--space-6)', color: 'var(--text-primary)' }}>Budget & Timeline</h2>
             <div className="form-group">
               <label className="form-label">Budget Range *</label>
               <div className="grid grid-2">
@@ -365,7 +379,7 @@ export default function StartProject() {
         {/* Step 4: Additional Info */}
         {currentStep === 4 && (
           <div>
-            <h3 style={{ marginBottom: 'var(--space-6)' }}>Additional Information</h3>
+            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', marginBottom: 'var(--space-6)', color: 'var(--text-primary)' }}>Additional Information</h2>
             <div className="form-group">
               <label className="form-label">Anything else we should know?</label>
               <textarea
@@ -382,7 +396,7 @@ export default function StartProject() {
         {/* Step 5: Review */}
         {currentStep === 5 && (
           <div>
-            <h3 style={{ marginBottom: 'var(--space-6)' }}>Review Your Details</h3>
+            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', marginBottom: 'var(--space-6)', color: 'var(--text-primary)' }}>Review Your Details</h2>
 
             <div className="request-detail__field">
               <div className="request-detail__field-label">Name</div>
@@ -470,5 +484,6 @@ export default function StartProject() {
         </div>
       </div>
     </section>
+  </>
   );
 }

@@ -18,9 +18,28 @@ export default function Navbar() {
   const [mobileIndustriesOpen, setMobileIndustriesOpen] = useState(false);
   const location = useLocation();
   const navRef = useRef(null);
+  const closeTimeoutRef = useRef(null);
+
+  const handleMouseEnter = (menu) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setActiveMenu(menu);
+  };
+
+  const handleMouseLeave = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    closeTimeoutRef.current = setTimeout(() => {
+      setActiveMenu(null);
+    }, 180);
+  };
 
   // Close menus on route change
   useEffect(() => {
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     setActiveMenu(null);
     setMobileOpen(false);
   }, [location]);
@@ -62,8 +81,10 @@ export default function Navbar() {
           <Link to="/" className="navbar__brand" onClick={() => setActiveMenu(null)}>
             <img
               src="/vorikxlogo.png"
-              alt="VORIKX Logo"
+              alt="VORIKX Software & Technologies company logo"
               className="navbar__logo"
+              width="36"
+              height="36"
             />
             <div className="navbar__wordmark-group">
               <span className="navbar__wordmark">
@@ -87,8 +108,8 @@ export default function Navbar() {
             {/* Services Mega Menu Dropdown */}
             <div
               className="navbar__dropdown-wrapper"
-              onMouseEnter={() => setActiveMenu('services')}
-              onMouseLeave={() => setActiveMenu(null)}
+              onMouseEnter={() => handleMouseEnter('services')}
+              onMouseLeave={handleMouseLeave}
             >
               <button
                 className={`navbar__dropdown-trigger${activeMenu === 'services' || location.pathname.startsWith('/services') ? ' active' : ''}`}
@@ -100,11 +121,15 @@ export default function Navbar() {
               </button>
 
               {activeMenu === 'services' && (
-                <div className="mega-menu">
+                <div
+                  className="mega-menu"
+                  onMouseEnter={() => handleMouseEnter('services')}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <div className="mega-menu__header">
                     <div>
                       <span className="mega-menu__label">OUR CAPABILITIES</span>
-                      <h4 className="mega-menu__title">End-to-End Digital Engineering</h4>
+                      <div className="mega-menu__title">End-to-End Digital Engineering</div>
                     </div>
                     <Link to="/services" className="mega-menu__all-link" onClick={() => setActiveMenu(null)}>
                       View All Services <ArrowRight size={14} />
@@ -125,7 +150,12 @@ export default function Navbar() {
                           </div>
                           <div className="mega-menu__card-body">
                             <span className="mega-menu__card-category">{service.category}</span>
-                            <h5 className="mega-menu__card-title">{service.title}</h5>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                              <div className="mega-menu__card-title">{service.title}</div>
+                              {service.isComingSoon && (
+                                <span className="badge badge--coming-soon" style={{ fontSize: '0.55rem', padding: '1px 6px' }}>Soon</span>
+                              )}
+                            </div>
                             <p className="mega-menu__card-desc">{service.shortDesc}</p>
                           </div>
                         </Link>
@@ -139,8 +169,8 @@ export default function Navbar() {
             {/* Industries Dropdown */}
             <div
               className="navbar__dropdown-wrapper"
-              onMouseEnter={() => setActiveMenu('industries')}
-              onMouseLeave={() => setActiveMenu(null)}
+              onMouseEnter={() => handleMouseEnter('industries')}
+              onMouseLeave={handleMouseLeave}
             >
               <button
                 className={`navbar__dropdown-trigger${activeMenu === 'industries' ? ' active' : ''}`}
@@ -152,10 +182,14 @@ export default function Navbar() {
               </button>
 
               {activeMenu === 'industries' && (
-                <div className="dropdown-menu dropdown-menu--industries">
+                <div
+                  className="dropdown-menu dropdown-menu--industries"
+                  onMouseEnter={() => handleMouseEnter('industries')}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <div className="dropdown-menu__header">
                     <span className="mega-menu__label">TARGET CLIENTS &amp; USE CASES</span>
-                    <h4 className="mega-menu__title">Built for Modern Organizations</h4>
+                    <div className="mega-menu__title">Built for Modern Organizations</div>
                   </div>
                   <div className="dropdown-menu__grid">
                     {industries.map((ind) => {
@@ -164,7 +198,7 @@ export default function Navbar() {
                         <div key={ind.slug} className="dropdown-menu__card">
                           <div className="dropdown-menu__card-header">
                             <Icon size={18} className="dropdown-menu__card-icon" />
-                            <h5 className="dropdown-menu__card-title">{ind.title}</h5>
+                            <div className="dropdown-menu__card-title">{ind.title}</div>
                             <span className="badge badge--new">{ind.badge}</span>
                           </div>
                           <p className="dropdown-menu__card-desc">{ind.desc}</p>

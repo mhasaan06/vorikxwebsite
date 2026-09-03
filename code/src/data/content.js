@@ -1,10 +1,10 @@
 export const clients = [
+  { name: 'BHDS', label: 'Health & Pharmacy System' },
+  { name: 'SkillSwap', label: 'Peer Learning Platform' },
   { name: 'FinVault', label: 'FinTech Platform' },
   { name: 'MedConnect', label: 'HealthTech Provider' },
   { name: 'Artisan Market', label: 'E-Commerce Global' },
-  { name: 'CloudScale', label: 'SaaS Infrastructure' },
-  { name: 'Apex Logistics', label: 'Enterprise Supply Chain' },
-  { name: 'NextGen AI', label: 'Automation Labs' },
+  { name: 'Metrix', label: 'Analytics Solutions' },
 ];
 
 export const industries = [
@@ -35,14 +35,22 @@ export const industries = [
 ];
 
 export const stats = [
-  { value: '+150', label: 'Projects Shipped' },
-  { value: '8+', label: 'Years Engineering Experience' },
-  { value: '12+', label: 'Industries Served' },
+  { value: '+75', label: 'Products Built This Year' },
+  { value: '2026', label: 'Founded in Lahore, Pakistan' },
+  { value: '100%', label: 'Commitment to Quality & Maintenance' },
   { value: '98%', label: 'Client Retention Rate' },
   { value: '99.9%', label: 'Target System Uptime' },
 ];
 
 export const testimonials = [
+  // PENDING CLIENT APPROVAL — confirm wording before public launch
+  {
+    quote: 'Our store used to run entirely on paper and memory. The system VORIKX built gave us a real inventory dashboard, and having a separate mode for staff means we don\'t worry about who has access to what. It\'s made day-to-day management genuinely easier.',
+    author: 'Dr. Muhammad Amin',
+    role: 'BHDS',
+    initials: 'MA',
+    servicesUsed: ['Custom Software', 'Inventory Systems', 'Role-Based Auth'],
+  },
   {
     quote: 'VORIKX delivered a platform that exceeded our performance benchmarks. Their engineering discipline and attention to architectural detail is remarkable.',
     author: 'Michael Torres',
@@ -51,18 +59,11 @@ export const testimonials = [
     servicesUsed: ['Custom Software', 'Backend & API', 'Cloud & DevOps'],
   },
   {
-    quote: 'The team understood our compliance requirements from day one. They built a system that our patients love and our legal team trusts.',
-    author: 'Dr. Sarah Chen',
-    role: 'Director of Digital Health, MedConnect',
-    initials: 'SC',
-    servicesUsed: ['Web Development', 'AI & Automation', 'UI/UX Design'],
-  },
-  {
     quote: 'Working with VORIKX felt like having a senior engineering team in-house. They challenged our assumptions and built something better than we imagined.',
     author: 'Elena Rodriguez',
     role: 'Founder, Artisan Market',
     initials: 'ER',
-    servicesUsed: ['Mobile Development', 'E-Commerce', 'UI/UX Design'],
+    servicesUsed: ['Web Development', 'E-Commerce', 'UI/UX Design'],
   },
 ];
 
@@ -81,7 +82,7 @@ export const faq = [
   },
   {
     question: 'Do you provide ongoing support after launch?',
-    answer: 'Yes. We offer flexible support and maintenance packages that include bug fixes, performance monitoring, feature enhancements, and security updates. Many of our clients continue working with us long after initial launch.',
+    answer: 'Yes. We believe in quality and maintenance throughout, not just a one-time launch. We offer flexible support packages that include proactive monitoring, bug fixes, feature enhancements, and security updates.',
   },
   {
     question: 'Can you work with our existing development team?',
@@ -95,28 +96,25 @@ export const faq = [
 
 export const team = [
   {
-    name: 'Alex Morgan',
+    name: 'Muhammad Hasaan',
     role: 'Founder & CEO',
+    initials: 'MH',
+    photo: '/team/hasaan.jpeg',
+    bio: 'Full-Stack & AI/ML Engineer. Founded VORIKX with a vision to deliver digital products built on quality and long-term maintenance.',
+  },
+  {
+    name: 'Ahmad Mujtaba',
+    role: 'Co-Founder & HR',
     initials: 'AM',
-    bio: 'Former engineering lead at two Series B startups. Passionate about building software that scales.',
+    photo: '/team/ahmad.jpeg',
+    bio: 'Python Developer, maintaining VORIKX as his own vision alongside Hasaan.',
   },
   {
-    name: 'Priya Patel',
-    role: 'Head of Engineering',
-    initials: 'PP',
-    bio: '12 years of full-stack experience. Expert in distributed systems and cloud architecture.',
-  },
-  {
-    name: 'Marcus Williams',
-    role: 'Lead Designer',
-    initials: 'MW',
-    bio: 'Design systems advocate with a background in cognitive psychology and human-computer interaction.',
-  },
-  {
-    name: 'Lena Kowalski',
-    role: 'Project Director',
-    initials: 'LK',
-    bio: 'PMP-certified with a track record of delivering complex projects on time and within budget.',
+    name: 'Tasveeb Riaz',
+    role: 'Head of Engineering & Product Manager',
+    initials: 'TR',
+    photo: '/team/tasveeb.jpg',
+    bio: 'Lead Designer, managing workflow and delivery across VORIKX\'s projects.',
   },
 ];
 
@@ -159,15 +157,14 @@ export const processSteps = [
   },
   {
     number: '07',
-    title: 'Support',
-    desc: 'Post-launch, we provide ongoing maintenance, performance optimization, and feature development to keep your product evolving.',
+    title: 'Maintenance & Quality',
+    desc: 'Post-launch, we provide continuous quality assurance, performance monitoring, and ongoing feature maintenance.',
     deliverables: ['Maintenance plan', 'Feature roadmap', 'Monthly reports'],
   },
 ];
 
 export const technologies = [
   'React', 'Next.js', 'Vue.js', 'TypeScript', 'Node.js', 'Python',
-  'Flutter', 'React Native', 'PostgreSQL', 'MongoDB', 'Redis',
-  'AWS', 'Google Cloud', 'Docker', 'Kubernetes', 'Terraform',
-  'GraphQL', 'TensorFlow', 'Figma',
+  'PostgreSQL', 'Docker', 'Premiere Pro', 'After Effects', 'Figma',
+  'Redis', 'AWS', 'Google Cloud', 'GraphQL', 'Tailwind CSS',
 ];

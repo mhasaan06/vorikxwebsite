@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { projects as fallbackProjects } from '../data/projects';
+import SEO from '../components/SEO';
 
 const filters = [
   { key: 'all', label: 'All' },
@@ -22,7 +23,7 @@ export default function Work() {
       try {
         const { data, error } = await supabase
           .from('portfolio_projects')
-          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order')
+          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order, live_url')
           .order('display_order', { ascending: true });
 
         if (data && data.length > 0) {
@@ -53,6 +54,12 @@ export default function Work() {
 
   return (
     <>
+      <SEO
+        title="Our Work & Case Studies | VORIKX Engineering Portfolio"
+        description="Explore digital products and scalable systems engineered by VORIKX, including Bin Hayat Dollar Store (BHDS), SkillSwap, and AI automation platforms."
+        url="https://vorikx.com/work"
+      />
+
       <section className="page-top">
         <div className="container">
           <div className="section-header" style={{ maxWidth: '680px' }}>
@@ -70,6 +77,9 @@ export default function Work() {
 
       <section className="section">
         <div className="container">
+          <h2 style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>
+            Featured Engineering Projects
+          </h2>
           <div className="work-filters">
             {filters.map((f) => (
               <button
@@ -89,17 +99,19 @@ export default function Work() {
           ) : (
             <div className="work-grid">
               {filteredProjects.map((project) => (
-                <Link
-                  key={project.slug}
-                  to={`/work/${project.slug}`}
-                  style={{ textDecoration: 'none' }}
-                >
-                  <div className="project-card">
+                <div key={project.slug} className="project-card" style={{ textDecoration: 'none' }}>
+                  <Link
+                    to={`/work/${project.slug}`}
+                    style={{ textDecoration: 'none', display: 'block' }}
+                  >
                     <div className="project-card__image">
                       {project.cover_image_url ? (
                         <img
                           src={project.cover_image_url}
-                          alt={project.title}
+                          alt={`Case study cover preview for ${project.title}`}
+                          width="600"
+                          height="340"
+                          loading="lazy"
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                       ) : (
@@ -108,17 +120,50 @@ export default function Work() {
                         </span>
                       )}
                     </div>
-                    <div className="project-card__body">
-                      <span className="project-card__category">
-                        {project.categoryLabel || project.category}
-                      </span>
-                      <h3 className="project-card__title">{project.title}</h3>
+                  </Link>
+                  <div className="project-card__body">
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                        <span className="project-card__category" style={{ marginBottom: 0 }}>
+                          {project.categoryLabel || project.category}
+                        </span>
+                        {project.live_url && (
+                          <a
+                            href={project.live_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="badge badge--new"
+                            style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                          >
+                            Live Site <ExternalLink size={10} />
+                          </a>
+                        )}
+                      </div>
+                      <Link to={`/work/${project.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <h3 className="project-card__title">{project.title}</h3>
+                      </Link>
                       <p className="project-card__desc">
                         {project.summary || project.shortDesc}
                       </p>
                     </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--space-4)', paddingTop: 'var(--space-3)', borderTop: '1px solid var(--border-color)' }}>
+                      <Link to={`/work/${project.slug}`} className="card__link" style={{ margin: 0 }}>
+                        Case Study <ArrowRight size={14} />
+                      </Link>
+                      {project.live_url && (
+                        <a
+                          href={project.live_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 'var(--weight-medium)', textDecoration: 'none' }}
+                        >
+                          Visit live site →
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}

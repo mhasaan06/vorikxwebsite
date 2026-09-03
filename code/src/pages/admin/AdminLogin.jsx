@@ -30,7 +30,7 @@ export default function AdminLogin() {
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
           <img
             src="/vorikxlogo.png"
-            alt="Vorikx"
+            alt="VORIKX Software & Technologies admin portal logo"
             style={{ height: '48px', margin: '0 auto var(--space-4)' }}
           />
           <h1 className="login-card__title">Admin Login</h1>
