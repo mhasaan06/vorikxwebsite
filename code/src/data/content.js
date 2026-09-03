@@ -113,7 +113,7 @@ export const team = [
     name: 'Tasveeb Riaz',
     role: 'Head of Engineering & Product Manager',
     initials: 'TR',
-    photo: '/team/tasveeb.jpg',
+    photo: '/team/tasveeb.jpeg',
     bio: 'Lead Designer, managing workflow and delivery across VORIKX\'s projects.',
   },
 ];
