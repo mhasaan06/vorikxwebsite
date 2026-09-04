@@ -15,7 +15,7 @@ export default function CaseStudy() {
       try {
         const { data, error } = await supabase
           .from('portfolio_projects')
-          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order, live_url')
+          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order, live_url, is_concept')
           .eq('slug', slug)
           .single();
 
@@ -70,7 +70,12 @@ export default function CaseStudy() {
           >
             <ArrowLeft size={16} /> All Projects
           </Link>
-          <span className="section-label">{project.categoryLabel || project.category}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+            <span className="section-label" style={{ marginBottom: 0 }}>{project.categoryLabel || project.category}</span>
+            {project.is_concept && (
+              <span className="badge badge--concept">Concept Project</span>
+            )}
+          </div>
           <h1 className="section-title" style={{ fontSize: 'var(--text-5xl)', marginTop: 'var(--space-3)' }}>
             {project.title}
           </h1>

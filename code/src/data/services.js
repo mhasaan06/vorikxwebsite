@@ -95,15 +95,15 @@ export const services = [
     technologies: ['Meta Business Suite', 'LinkedIn Analytics', 'Figma', 'Canva Pro', 'Buffer', 'Metricool'],
   },
 
-  // ── Coming Soon (Kept visible, marked with Coming Soon badge) ──
+  // ── Mobile, AI, Infrastructure & Cloud Services ──
   {
     slug: 'mobile-development',
     title: 'Mobile App Development',
     category: 'Mobile Apps',
     icon: Smartphone,
-    isComingSoon: true,
+    isComingSoon: false,
     shortDesc: 'Native and cross-platform mobile apps delivering fluid experiences across iOS and Android.',
-    fullDesc: 'We are expanding our mobile engineering team to bring you native iOS/Android and cross-platform Flutter/React Native solutions with offline-first sync and App Store polish.',
+    fullDesc: 'We architect and build native iOS/Android and cross-platform Flutter/React Native solutions with offline-first sync, secure biometrics, and App Store polish.',
     features: [
       { title: 'Cross-Platform Frameworks', desc: 'Flutter and React Native for efficient code reuse across iOS and Android.' },
       { title: 'Native Device Capabilities', desc: 'Direct camera, biometric, GPS, and sensor integrations.' },
@@ -119,9 +119,9 @@ export const services = [
     title: 'AI & Automation',
     category: 'AI & Intelligence',
     icon: Brain,
-    isComingSoon: true,
+    isComingSoon: false,
     shortDesc: 'Intelligent workflow automation and LLM-powered systems giving your business a decisive edge.',
-    fullDesc: 'Our upcoming AI engineering practice focuses on integrating large language models, automated data extraction, and intelligent bot agents directly into business software pipelines.',
+    fullDesc: 'We build enterprise AI systems, custom LLM agents, automated document extraction pipelines, and intelligent workflow automation directly into business software stacks.',
     features: [
       { title: 'Custom LLM Agents', desc: 'Context-aware internal assistants and customer-facing intelligent chatbots.' },
       { title: 'Intelligent Document Processing', desc: 'Automated OCR extraction, classification, and routing of invoices and documents.' },
@@ -137,7 +137,7 @@ export const services = [
     title: 'Backend/API Development',
     category: 'Infrastructure',
     icon: Server,
-    isComingSoon: true,
+    isComingSoon: false,
     shortDesc: 'High-throughput backend architectures and secure microservices built for maximum uptime and speed.',
     fullDesc: 'Scalable server-side foundations designed to handle heavy request concurrency with low latency, robust data isolation, and comprehensive API documentation.',
     features: [
@@ -155,7 +155,7 @@ export const services = [
     title: 'Cloud/DevOps',
     category: 'Cloud Engineering',
     icon: Cloud,
-    isComingSoon: true,
+    isComingSoon: false,
     shortDesc: 'Modern cloud infrastructure, automated CI/CD pipelines, and proactive observability setups.',
     fullDesc: 'Automated, repeatable cloud infrastructure engineering ensuring zero-downtime rollouts, automated security patches, and resilient disaster recovery.',
     features: [

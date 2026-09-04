@@ -7,8 +7,10 @@ const serviceLinks = [
   { to: '/services/ui-ux-design', label: 'UI/UX Design' },
   { to: '/services/video-editing', label: 'Video Editing' },
   { to: '/services/social-media-management', label: 'Social Media Management' },
-  { to: '/services/mobile-development', label: 'Mobile App Development (Soon)' },
-  { to: '/services/ai-automation', label: 'AI & Automation (Soon)' },
+  { to: '/services/mobile-development', label: 'Mobile App Development' },
+  { to: '/services/ai-automation', label: 'AI & Automation' },
+  { to: '/services/backend-api', label: 'Backend & API Development' },
+  { to: '/services/cloud-devops', label: 'Cloud & DevOps' },
 ];
 
 const companyLinks = [

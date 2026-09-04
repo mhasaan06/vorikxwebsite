@@ -4,17 +4,19 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 
-// Public Pages
+// Eagerly loaded primary landing
 import Home from './pages/Home';
-import About from './pages/About';
-import Services from './pages/Services';
-import ServiceDetail from './pages/ServiceDetail';
-import Work from './pages/Work';
-import CaseStudy from './pages/CaseStudy';
-import Process from './pages/Process';
-import StartProject from './pages/StartProject';
-import Contact from './pages/Contact';
-import NotFound from './pages/NotFound';
+
+// Code-split Public Pages
+const About = lazy(() => import('./pages/About'));
+const Services = lazy(() => import('./pages/Services'));
+const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
+const Work = lazy(() => import('./pages/Work'));
+const CaseStudy = lazy(() => import('./pages/CaseStudy'));
+const Process = lazy(() => import('./pages/Process'));
+const StartProject = lazy(() => import('./pages/StartProject'));
+const Contact = lazy(() => import('./pages/Contact'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Code-split Admin Pages
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));

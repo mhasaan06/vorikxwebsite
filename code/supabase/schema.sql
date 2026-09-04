@@ -81,11 +81,12 @@ CREATE POLICY "Allow public read on portfolio_projects" ON public.portfolio_proj
 -- Migrations & Initial Seed Data
 -- ============================================
 
--- Migration: Add live_url column if not present
+-- Migration: Add live_url & is_concept columns if not present
 ALTER TABLE public.portfolio_projects ADD COLUMN IF NOT EXISTS live_url TEXT NULL;
+ALTER TABLE public.portfolio_projects ADD COLUMN IF NOT EXISTS is_concept BOOLEAN NULL DEFAULT false;
 
--- Upsert BHDS and SkillSwap Project Rows
-INSERT INTO public.portfolio_projects (title, slug, category, summary, case_study_content, cover_image_url, live_url, is_featured, display_order)
+-- Upsert All 9 Project Rows (Real Work + 1 Demo/Concept Per Service)
+INSERT INTO public.portfolio_projects (title, slug, category, summary, case_study_content, cover_image_url, live_url, is_featured, is_concept, display_order)
 VALUES 
   (
     'Bin Hayat Dollar Store (BHDS)',
@@ -96,6 +97,7 @@ VALUES
     '/projects/bhds.png',
     'https://binhayat-dollarstore.vercel.app/',
     true,
+    false,
     1
   ),
   (
@@ -107,7 +109,92 @@ VALUES
     '/projects/skillswap.png',
     'https://skillswap06.vercel.app/',
     true,
+    false,
     2
+  ),
+  (
+    'Aura Health & Wellness Design System',
+    'aura-wellness-design-system',
+    'UI/UX Design',
+    'Comprehensive cross-platform design tokens, accessible components, and high-fidelity interactive prototype for digital healthcare.',
+    'Figma design tokens, WCAG 2.1 AA accessible contrast rating, and responsive interactive prototypes for modern healthcare.',
+    '/projects/aura-design.png',
+    null,
+    true,
+    true,
+    3
+  ),
+  (
+    'NovaSaaS Product Launch & Motion Graphics Suite',
+    'nova-commercial-motion-suite',
+    'Video Editing',
+    'Cinematic 3D commercial explainer, kinetic typography, and high-conversion vertical social video campaign.',
+    'Multi-format video campaign combining 3D product motion graphics, sound design, hook-driven vertical reels, and cinematic color grading.',
+    '/projects/nova-motion.png',
+    null,
+    false,
+    true,
+    4
+  ),
+  (
+    'Pulse Omnichannel Social Growth Campaign',
+    'pulse-growth-omnichannel',
+    'Social Media',
+    'Strategic content calendar, branded carousel system, and data-driven community growth playbook.',
+    'Omnichannel growth engine featuring 30-day content pillars, viral carousel templates, active community engagement, and conversion tracking.',
+    '/projects/pulse-growth.png',
+    null,
+    false,
+    true,
+    5
+  ),
+  (
+    'FinVault Mobile Trading & Wallet',
+    'fintech-trading-platform',
+    'Mobile App',
+    'Fluid cross-platform mobile trading experience with biometric authentication and real-time ticker streaming.',
+    'Cross-platform mobile client with 60fps gesture navigation, biometric Face ID auth, and encrypted local database caching.',
+    '/projects/fintech-mobile.png',
+    null,
+    true,
+    true,
+    6
+  ),
+  (
+    'DocuMind AI Document Intelligence',
+    'documind-ai',
+    'AI & Automation',
+    'AI-powered document processing system that extracts, classifies, and routes business records using custom LLMs.',
+    'Intelligent document extraction pipeline leveraging vision-language models, structured JSON parsing, and autonomous verification agents.',
+    '/projects/documind-ai.png',
+    null,
+    true,
+    true,
+    7
+  ),
+  (
+    'Nexus Distributed API Gateway',
+    'nexus-api-gateway',
+    'Backend/API',
+    'High-throughput microservices routing layer with token bucket rate limiting and sub-15ms p99 latency.',
+    'Lightweight compiled gateway in Go featuring distributed Redis rate-limiting, gRPC trans-coding, and OpenTelemetry tracing.',
+    '/projects/nexus-api.png',
+    null,
+    false,
+    true,
+    8
+  ),
+  (
+    'Stratus Multi-Region Cloud & CI/CD Pipeline',
+    'stratus-cloud-orchestrator',
+    'Cloud/DevOps',
+    'Automated multi-region infrastructure as code with zero-downtime canary deployments and Prometheus monitoring.',
+    'Terraform IaC modules, automated GitHub Actions CI/CD workflows, and containerized Kubernetes clusters with self-healing pods.',
+    '/projects/stratus-cloud.png',
+    null,
+    false,
+    true,
+    9
   )
 ON CONFLICT (slug) DO UPDATE 
 SET 
@@ -116,4 +203,5 @@ SET
   summary = EXCLUDED.summary,
   case_study_content = EXCLUDED.case_study_content,
   is_featured = EXCLUDED.is_featured,
+  is_concept = EXCLUDED.is_concept,
   display_order = EXCLUDED.display_order;

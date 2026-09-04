@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight, ChevronDown, Shield, Zap, Users, Headphones, Building, Rocket, Building2, ShieldCheck, Cpu, Sparkles, Clock, ExternalLink
+  ArrowRight, ChevronDown, Shield, Zap, Users, Headphones, Building, Rocket, Building2, ShieldCheck, Cpu, Sparkles, ExternalLink
 } from 'lucide-react';
 import { services } from '../data/services';
 import { projects } from '../data/projects';
-import { clients, industries, stats, testimonials, faq } from '../data/content';
+import { clients, industries, stats, faq } from '../data/content';
 
 import HeroServiceSlider from '../components/HeroServiceSlider';
 import SEO from '../components/SEO';
@@ -180,7 +180,7 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-3">
-            {services.filter((s) => !s.isComingSoon).map((service) => {
+            {services.map((service) => {
               const Icon = service.icon;
               return (
                 <Link
@@ -209,46 +209,6 @@ export default function Home() {
                 </Link>
               );
             })}
-          </div>
-
-          {/* Coming Soon Services Preview */}
-          <div style={{ marginTop: 'var(--space-10)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
-              <span className="badge badge--coming-soon" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={13} /> COMING SOON
-              </span>
-              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-                Upcoming Capabilities in Development
-              </span>
-            </div>
-            <div className="grid grid-4">
-              {services.filter((s) => s.isComingSoon).map((service) => {
-                const Icon = service.icon;
-                return (
-                  <Link
-                    key={service.slug}
-                    to={`/services/${service.slug}`}
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <div className="card card--coming-soon card--interactive" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 'var(--space-6)' }}>
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-                          <div className="card__icon" style={{ margin: 0, color: 'var(--color-silver)' }}>
-                            <Icon size={22} />
-                          </div>
-                          <span className="badge badge--coming-soon" style={{ fontSize: '0.6rem' }}>Soon</span>
-                        </div>
-                        <h4 className="card__title" style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-1)' }}>{service.title}</h4>
-                        <p className="card__text" style={{ fontSize: 'var(--text-xs)', lineHeight: 1.5 }}>{service.shortDesc}</p>
-                      </div>
-                      <span className="card__link" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-silver)', marginTop: 'var(--space-3)' }}>
-                        Preview <ArrowRight size={12} />
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 'var(--space-12)' }}>
@@ -422,13 +382,20 @@ export default function Home() {
                   <div className="project-card__body">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
                       <span className="project-card__category" style={{ marginBottom: 0 }}>
-                        {project.categoryLabel}
+                        {project.categoryLabel || project.category}
                       </span>
-                      {project.live_url && (
-                        <span className="badge badge--new" style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          Live Site <ExternalLink size={10} />
-                        </span>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        {project.is_concept && (
+                          <span className="badge badge--concept">
+                            Concept Project
+                          </span>
+                        )}
+                        {project.live_url && (
+                          <span className="badge badge--new" style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            Live Site <ExternalLink size={10} />
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <h3 className="project-card__title">{project.title}</h3>
                     <p className="project-card__desc">{project.shortDesc}</p>
@@ -445,49 +412,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 8. Testimonials Section (3-Column Grid, Middle Featured) ── */}
-      <section className="section section--slate">
-        <div className="container">
-          <div className="section-header section-header--center">
-            <span className="section-label">Client Feedback</span>
-            <h2 className="section-title">What technology leaders say</h2>
-          </div>
-          <div className="grid grid-3">
-            {testimonials.map((t, idx) => {
-              const isMiddleFeatured = idx === 1;
-              return (
-                <div
-                  key={t.author}
-                  className="testimonial-card"
-                  style={{
-                    backgroundColor: isMiddleFeatured ? 'var(--bg-primary)' : 'var(--bg-secondary)',
-                    border: isMiddleFeatured ? '1px solid var(--accent)' : '1px solid var(--border-color)',
-                    boxShadow: isMiddleFeatured ? '0 12px 24px rgba(22, 140, 136, 0.12)' : 'none',
-                  }}
-                >
-                  <p className="testimonial-card__quote">"{t.quote}"</p>
-                  <div className="testimonial-card__author">
-                    <div className="testimonial-card__avatar">{t.initials}</div>
-                    <div>
-                      <div className="testimonial-card__name">{t.author}</div>
-                      <div className="testimonial-card__role">{t.role}</div>
-                    </div>
-                  </div>
-                  {t.servicesUsed && (
-                    <div className="testimonial-card__tags">
-                      {t.servicesUsed.map((svc) => (
-                        <span key={svc} className="testimonial-card__tag">
-                          {svc}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* ── 9. FAQ Accordion ── */}
       <section className="section">

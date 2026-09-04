@@ -7,10 +7,15 @@ import SEO from '../components/SEO';
 
 const filters = [
   { key: 'all', label: 'All' },
+  { key: 'software', label: 'Software' },
   { key: 'web', label: 'Web' },
   { key: 'mobile', label: 'Mobile' },
-  { key: 'software', label: 'Software' },
-  { key: 'ai', label: 'AI' },
+  { key: 'design', label: 'UI/UX' },
+  { key: 'ai', label: 'AI & Automation' },
+  { key: 'backend', label: 'Backend/API' },
+  { key: 'cloud', label: 'Cloud/DevOps' },
+  { key: 'media', label: 'Video' },
+  { key: 'growth', label: 'Social Media' },
 ];
 
 export default function Work() {
@@ -23,7 +28,7 @@ export default function Work() {
       try {
         const { data, error } = await supabase
           .from('portfolio_projects')
-          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order, live_url')
+          .select('id, title, slug, category, summary, case_study_content, cover_image_url, gallery_urls, is_featured, display_order, live_url, is_concept')
           .order('display_order', { ascending: true });
 
         if (data && data.length > 0) {
@@ -127,17 +132,24 @@ export default function Work() {
                         <span className="project-card__category" style={{ marginBottom: 0 }}>
                           {project.categoryLabel || project.category}
                         </span>
-                        {project.live_url && (
-                          <a
-                            href={project.live_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="badge badge--new"
-                            style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
-                          >
-                            Live Site <ExternalLink size={10} />
-                          </a>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                          {project.is_concept && (
+                            <span className="badge badge--concept">
+                              Concept Project
+                            </span>
+                          )}
+                          {project.live_url && (
+                            <a
+                              href={project.live_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="badge badge--new"
+                              style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                            >
+                              Live Site <ExternalLink size={10} />
+                            </a>
+                          )}
+                        </div>
                       </div>
                       <Link to={`/work/${project.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <h3 className="project-card__title">{project.title}</h3>

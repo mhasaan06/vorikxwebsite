@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, ArrowRight, Building2, Rocket, ShieldCheck, Cpu } from 'lucide-react';
 import { services } from '../data/services';
@@ -10,6 +10,78 @@ const industryIcons = {
   enterprise: ShieldCheck,
   'fintech-healthtech': Cpu,
 };
+
+const DesktopServicesMenu = memo(function DesktopServicesMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }) {
+  return (
+    <div
+      className={`mega-menu${isOpen ? ' open' : ''}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div className="mega-menu__header">
+        <div>
+          <span className="mega-menu__label">OUR CAPABILITIES</span>
+          <div className="mega-menu__title">End-to-End Digital Engineering</div>
+        </div>
+        <Link to="/services" className="mega-menu__all-link" onClick={onClose}>
+          View All Services <ArrowRight size={14} />
+        </Link>
+      </div>
+      <div className="mega-menu__grid">
+        {services.map((service) => {
+          const Icon = service.icon;
+          return (
+            <Link
+              key={service.slug}
+              to={`/services/${service.slug}`}
+              className="mega-menu__card"
+              onClick={onClose}
+            >
+              <div className="mega-menu__card-icon">
+                <Icon size={20} />
+              </div>
+              <div className="mega-menu__card-body">
+                <span className="mega-menu__card-category">{service.category}</span>
+                <div className="mega-menu__card-title">{service.title}</div>
+                <p className="mega-menu__card-desc">{service.shortDesc}</p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+});
+
+const DesktopIndustriesMenu = memo(function DesktopIndustriesMenu({ isOpen, onMouseEnter, onMouseLeave }) {
+  return (
+    <div
+      className={`dropdown-menu dropdown-menu--industries${isOpen ? ' open' : ''}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div className="dropdown-menu__header">
+        <span className="mega-menu__label">TARGET CLIENTS &amp; USE CASES</span>
+        <div className="mega-menu__title">Built for Modern Organizations</div>
+      </div>
+      <div className="dropdown-menu__grid">
+        {industries.map((ind) => {
+          const Icon = industryIcons[ind.slug] || Building2;
+          return (
+            <div key={ind.slug} className="dropdown-menu__card">
+              <div className="dropdown-menu__card-header">
+                <Icon size={18} className="dropdown-menu__card-icon" />
+                <div className="dropdown-menu__card-title">{ind.title}</div>
+                <span className="badge badge--new">{ind.badge}</span>
+              </div>
+              <p className="dropdown-menu__card-desc">{ind.desc}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+});
 
 export default function Navbar() {
   const [activeMenu, setActiveMenu] = useState(null); // 'services' | 'industries' | null
@@ -120,50 +192,12 @@ export default function Navbar() {
                 <ChevronDown size={15} className={`dropdown-arrow${activeMenu === 'services' ? ' open' : ''}`} />
               </button>
 
-              {activeMenu === 'services' && (
-                <div
-                  className="mega-menu"
-                  onMouseEnter={() => handleMouseEnter('services')}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <div className="mega-menu__header">
-                    <div>
-                      <span className="mega-menu__label">OUR CAPABILITIES</span>
-                      <div className="mega-menu__title">End-to-End Digital Engineering</div>
-                    </div>
-                    <Link to="/services" className="mega-menu__all-link" onClick={() => setActiveMenu(null)}>
-                      View All Services <ArrowRight size={14} />
-                    </Link>
-                  </div>
-                  <div className="mega-menu__grid">
-                    {services.map((service) => {
-                      const Icon = service.icon;
-                      return (
-                        <Link
-                          key={service.slug}
-                          to={`/services/${service.slug}`}
-                          className="mega-menu__card"
-                          onClick={() => setActiveMenu(null)}
-                        >
-                          <div className="mega-menu__card-icon">
-                            <Icon size={20} />
-                          </div>
-                          <div className="mega-menu__card-body">
-                            <span className="mega-menu__card-category">{service.category}</span>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-                              <div className="mega-menu__card-title">{service.title}</div>
-                              {service.isComingSoon && (
-                                <span className="badge badge--coming-soon" style={{ fontSize: '0.55rem', padding: '1px 6px' }}>Soon</span>
-                              )}
-                            </div>
-                            <p className="mega-menu__card-desc">{service.shortDesc}</p>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+              <DesktopServicesMenu
+                isOpen={activeMenu === 'services'}
+                onClose={() => setActiveMenu(null)}
+                onMouseEnter={() => handleMouseEnter('services')}
+                onMouseLeave={handleMouseLeave}
+              />
             </div>
 
             {/* Industries Dropdown */}
@@ -181,33 +215,11 @@ export default function Navbar() {
                 <ChevronDown size={15} className={`dropdown-arrow${activeMenu === 'industries' ? ' open' : ''}`} />
               </button>
 
-              {activeMenu === 'industries' && (
-                <div
-                  className="dropdown-menu dropdown-menu--industries"
-                  onMouseEnter={() => handleMouseEnter('industries')}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <div className="dropdown-menu__header">
-                    <span className="mega-menu__label">TARGET CLIENTS &amp; USE CASES</span>
-                    <div className="mega-menu__title">Built for Modern Organizations</div>
-                  </div>
-                  <div className="dropdown-menu__grid">
-                    {industries.map((ind) => {
-                      const Icon = industryIcons[ind.slug] || Building2;
-                      return (
-                        <div key={ind.slug} className="dropdown-menu__card">
-                          <div className="dropdown-menu__card-header">
-                            <Icon size={18} className="dropdown-menu__card-icon" />
-                            <div className="dropdown-menu__card-title">{ind.title}</div>
-                            <span className="badge badge--new">{ind.badge}</span>
-                          </div>
-                          <p className="dropdown-menu__card-desc">{ind.desc}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+              <DesktopIndustriesMenu
+                isOpen={activeMenu === 'industries'}
+                onMouseEnter={() => handleMouseEnter('industries')}
+                onMouseLeave={handleMouseLeave}
+              />
             </div>
 
             <NavLink
